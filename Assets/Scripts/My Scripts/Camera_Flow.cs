@@ -15,7 +15,7 @@ public class Camera_Flow : MonoBehaviour
     [Range(0.1f, 5f)] public float smoothPossition = 0.1f;
     [Range(0.1f, 5f)] public float smoothRotation = 0.1f;
     // Start is called before the first frame update
-    void FixedUpdate()
+    void LateUpdate()
     {
         // Smoothly follow the target position with offset.
         Vector3 desiredPosition = target.position + target.rotation * offset;
@@ -25,6 +25,7 @@ public class Camera_Flow : MonoBehaviour
         Quaternion targetRotation = target.rotation;
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, smoothRotation);
 
-        
+
+
     }
 }
