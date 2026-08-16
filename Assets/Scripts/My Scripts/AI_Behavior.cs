@@ -1,320 +1,414 @@
 using System;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 public class AI_Behavior : MonoBehaviour
 {
-    [Header("Components")]
-    private CapsuleCollider capsuleCollider;
-    private GameObject playerGameObject;
-    public Transform playerLocation;
-    public GameObject enemyGameObject;
-    private Rigidbody enemy_rb;
-    public NavMeshAgent agent;
+    [Header("Player_Components")]
+    private Transform playerLocation;
+
+    [Header("npc_Components")]
+    private CapsuleCollider npc_capsuleCollider;
+    private GameObject npc_GameObject;
+    private Rigidbody npc_rb;
     
-    [Header("Patrol/Chasing Settings")]
+    [Header("NavMesh Variables")]
     private NavMeshPath path;
+    private Vector3[] pathCorners = new Vector3[64];
+    private int cornersCount = 0;
+    private int currentCornerIndex = 0;
+    private float nextPathUpdateTime = 0;
+    public float pathUpdateDelayTime = 0.5f;
+
+    [Header("Patrol/Chasing/Investigate/Shooting Settings")]
     public Vector3[] patrolLocations;
     public int currentPatrolIndex;
-    private Vector3 currentPatrolLocation;
-    private bool isPatrolling = true;
+    public enum AIState {Patrol, Chase, Investigate}
+    public AIState currentState = AIState.Patrol;
+    private Vector3 lastKnownPlayerPosition;
 
     [Header("Tank Vehicle Parameters")]
-    public float chaseSpeed;            // max forward speed (units/sec).
-    public float turnSpeed;             // degrees/sec rotation speed.
-    public float detectionRange;        // how far the AI can see the player.
-    public float fovAngle;              // field of view angle for detection.
-    public float stopAtDistance;        // how close to stop from player.
-    public float rayheightOffset;       // height offset for raycasting to detect player.
+    public float speed;                     // Max forward speed (units/sec).
+    public float turnSpeed;                 // Degrees/sec rotation speed.
+    public float detectionRange;            // How far the AI can see the player.
+    public float detectionAngle;                // FOV angle for detection.
+    public float stopAtDistanceMin;         // how close to stop from player.
+    public float stopAtDistanceMax;         // How far to be stoped from player.
+    public float rayheightOffset;           // height offset for raycasting to detect player.
 
     [Header("Tank Shooting Parameters")]
-    public GameObject shellObject;          // The shell prefab to be fired.
-    public Transform shellSpawnPoint;       // Where the shell is spawned from.
-    public float shellSize;                 // Volume of the fired shell
+    private Transform shellSpawnPoint;       // Where the shell is spawned from.
+    private float shellSize;                // Size of the fired shell.
     public float shellSpeed;                // speed of the fired shell (units/sec).
     public float fireDelayTime;             // Fire delay (seconds between shots).
-    public float nextFireTime;              // Time when the AI can fire next.
-    public float timeToDestroyProjectile;   // Time after which the projectile is destroyed.
+    private float nextFireTime;             // Time when the AI can fire next.
+    public float angleToShoot;              // Angle withing player must be to shoot.
     public float damageMultiplier;          // Damage multiplier for projectiles.
-    
-    public int countexistingprojectiles;
+
     [Range(0f, 1f)] public float velocityLerp = 0.1f; // smoothing for velocity changes
-    // Start is called before the first frame update
 
     void Start()
     {
         path = new NavMeshPath();
-        agent = GetComponent<NavMeshAgent>();
-        agent.updatePosition = false; // We will handle position updates manually.
-        agent.updateRotation = false; // We will handle rotation updates manually.
-        playerGameObject = GameObject.FindGameObjectWithTag("Player");
-        playerLocation = playerGameObject.transform;
-        enemyGameObject = this.gameObject;
 
-        // Initialize Tank Parameters.
-        chaseSpeed      = 40f;      // max forward speed (units/sec).
-        turnSpeed       = 2f;       // degrees/sec rotation speed.
-        detectionRange  = 150f;     // how far the AI can see the player.
-        fovAngle        = 120f;     // field of view angle for detection.
-        stopAtDistance  = 50f;      // how close to stop from player.
-        rayheightOffset = 2f;     // height offset for raycasting to detect player.
-        float staticlocationHeight = 0f;
-
-        // Initialize AI's Rigidbody.
-        enemy_rb = enemyGameObject.GetComponent<Rigidbody>();
-        enemy_rb.mass           = 100f;
-        enemy_rb.drag           = 5f;
-        enemy_rb.angularDrag    = 5f;
-        enemy_rb.isKinematic    = false;
-        enemy_rb.useGravity     = true;
-        enemy_rb.constraints    = (
-            RigidbodyConstraints.FreezeRotationX |
-            RigidbodyConstraints.FreezeRotationZ |
-            RigidbodyConstraints.FreezePositionY
-        );
-
-        // Initialize AI's CapsuleCollider.
-        capsuleCollider = GetComponent<CapsuleCollider>();
-        capsuleCollider.enabled     = true;
-        capsuleCollider.isTrigger   = false;
-        capsuleCollider.center      = new Vector3(0f, 1.20f, -0.1f);
-        capsuleCollider.radius      = 1.10f;
-        capsuleCollider.height      = 3.15f;
-        capsuleCollider.direction   = 2; // Z-axis
-
-        // Initialize Start Location & Rotation.
-        transform.position = new Vector3(155f, staticlocationHeight, -36f);
-        transform.rotation = Quaternion.Euler(0f, -87f, 0f);
-
-        // Initialize patrolling Locations.
-        currentPatrolIndex = 0;
-        patrolLocations = new Vector3[]
+        // Initialize Player's Game Object.
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj == null)
         {
-            new Vector3(-80f, staticlocationHeight, 180f),
-            new Vector3(33f, staticlocationHeight, 176.5f),
-            new Vector3(190f, staticlocationHeight, -120f),
-            new Vector3(20f, staticlocationHeight, -40f),
-            new Vector3(90f, staticlocationHeight, -130f),
-            new Vector3(-120f, staticlocationHeight, -10f),
-
-        };
-
-        if (patrolLocations.Length > 0)
-        {
-            currentPatrolLocation = patrolLocations[0];
+            Debug.LogError("Players Location by tag 'Player' not found.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #endif
         }
         else
         {
-            currentPatrolLocation = transform.position; // Stay in place if no patrol points are set.
-            Debug.LogWarning("No patrol points set for AI.");
+            playerLocation = playerObj.transform;                               // Get the players transform/Location.
+        }
+        npc_GameObject = this.gameObject;                                       // Set unique variable for npc's gameObject.
+        npc_rb = npc_GameObject.GetComponent<Rigidbody>();              
+        if (npc_rb == null)                                                     // Check if npc's tank has RigidBody assigned.
+        {
+            Debug.LogWarning("Npc's tank does not have RigidBody:" + npc_GameObject.name);
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
+            #endif
+            return;
+        }
+        npc_capsuleCollider = GetComponent<CapsuleCollider>();
+        if (npc_capsuleCollider == null)                                        // Check if npc's tank has CapsuleCollider assigned.
+        {
+            Debug.LogWarning("Npc's tank does not have CapsuleColider:" + npc_GameObject.name);
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
+            #endif
+            return;
         }
 
-        // Intialize Shooting Parameters.
-        shellObject     = Resources.Load<GameObject>("My_Shell");   // Load shell prefab.
-        shellSpawnPoint = transform.Find("FirePoint");              // Find shell spawn point.
-        shellSize       = 5f;                                       // Size of the fired shell.
-        shellSpeed      = 200f;                                     // Speed of the fired shell (units/sec).
-        fireDelayTime   = 3f;                                       // Fire delay (seconds between shots).
-        nextFireTime    = 0f;                                       // Time when the AI can fire next.
-        timeToDestroyProjectile   = 10f;                            // Time after which the projectile is destroyed.
-        damageMultiplier = 1.0f;
+        // Lock the object because we move in 2D dimension.
+        npc_rb.constraints =  
+            RigidbodyConstraints.FreezeRotationX |                              //Lock the X rotation of the tank.
+            RigidbodyConstraints.FreezeRotationZ |                              //Lock the Z rotation of the tank.
+            RigidbodyConstraints.FreezePositionY;                               //Lock the Y position of the tank.
+
+        // Lock some parameters to ensure that the object can not pass throu other objects.
+        npc_rb.isKinematic = false;
+        npc_rb.useGravity = true;
+        npc_capsuleCollider.enabled = true;
+        npc_capsuleCollider.isTrigger = false;
+        npc_capsuleCollider.center = new Vector3(0.0f, 1.20f, -0.1f);
+        npc_capsuleCollider.radius = 1.1f;
+        npc_capsuleCollider.height = 3.15f;
+        npc_capsuleCollider.direction = 2;
+
+        // Initialize Shells Parameters.
+        shellSpawnPoint = npc_GameObject.transform.Find("FirePoint");
+        if (shellSpawnPoint == null)                                            // Check if shell's spawn point is found as first child.
+        {
+            Debug.LogError("Game Object 'FirePoint' not found as first child: " + npc_GameObject.name);
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
+            #endif
+        }
+        shellSize = 5f;                                                         // Initialize shells Size.
+        
+
+        
+        // Initialize patrolling Locations.
+        if (patrolLocations == null || patrolLocations.Length == 0)             // Check if Inspector assigned atleast one patrol location.
+        {
+            Debug.LogError("Patrol Locations are not asigned for one or more NPC's.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
+            #endif
+        }
+    }
+
+    void FixedUpdate()
+    {
+        // Check if player is in line of sight.
+        bool canSeePlayer = isPlayerInLineOfSight(playerLocation, npc_GameObject.transform);
+
+        switch (currentState)
+        {
+            case AIState.Patrol:
+                if (!canSeePlayer)                                              // If player is NOT in line of sight.
+                {
+                    patrolTerytory();                                           // Continue to patrol.
+                }
+                else                                                            // If player is in line of sight. Note: NPC found him.
+                {
+                    currentState = AIState.Chase;                               // Switch to Chase Mode.
+                    cornersCount = 0;                                           // Force npc to calculate new path.
+                    chasePlayer(playerLocation, npc_GameObject.transform);      // Chase the player.
+                }
+
+                break;
+
+            case AIState.Chase:
+                if (canSeePlayer)                                               // If player is in line of sight.
+                {
+                    chasePlayer(playerLocation, npc_GameObject.transform);      // Continue chasing the player.
+                }
+                else                                                            // If player is NOT in line of sight. Note: Npc lost him.
+                {
+                    currentState = AIState.Investigate;                         // Switch to Investigating Mode.
+                    cornersCount = 0;                                           // Force npc to calculate new path.
+                    investigateLastKnownPossition();                            // Investigate the last known Possition
+                }
+
+                break;
+
+            case AIState.Investigate:
+                if (!canSeePlayer)                                              // If player is NOT in line of sight.
+                {
+                    investigateLastKnownPossition();                            // Continue to Investigate.
+                    //Note: if investigation fails, function automaticaly will change to patrol Mode.
+                }
+                else                                                            // If player is in line of sight. Note: NPC found him.
+                {
+                    currentState = AIState.Chase;                               // Switch to Chase Mode.
+                    cornersCount = 0;                                           // Force npc to calculate new path.
+                    chasePlayer(playerLocation, npc_GameObject.transform);      // Chase the player.
+                }
+
+                break;
+        }
     }
 
     // Start of my Functions.==============================
-    bool IsPlayerInLineOfSight()
-    {
-        float distanceToPlayer = Vector3.Distance(transform.position, playerLocation.position); //dont change.
-        float angleBetweenFrontAndPlayer = Vector3.Angle(transform.forward, (playerLocation.position - transform.position).normalized);
-        RaycastHit hit;
-        Vector3 rayOrigin = transform.position + Vector3.up * rayheightOffset;
-        Vector3 directionToPlayer = (playerLocation.position - transform.position).normalized;
 
-        // Check Distance.
-        if (distanceToPlayer > detectionRange)
+    void chasePlayer(Transform player, Transform npc)
+    {
+        lastKnownPlayerPosition = player.position;                                                  // Always remember where npc saw the player last time.
+
+        Vector3 playerPos2D = new Vector3(player.position.x, npc.position.y, player.position.z);    // Find the players position in x,z axes.
+        float distanceToPlayer = Vector3.Distance(npc.position, playerPos2D);                       // Calculate distance between npc and player.
+
+        if (checkIfTargetInFront(player, npc))                                                      // Try to shoot the player.
         {
-            return false;  // Out of detection Range.
+            shootWhenReady();
         }
+
+        if (distanceToPlayer <= stopAtDistanceMin && distanceToPlayer > stopAtDistanceMax)
+        {
+            cornersCount = 0;   // Force tank to stop moving.
+
+            // Keep looking at player.
+            Vector3 directionToPlayer = (playerPos2D - npc.position).normalized;
+            if (directionToPlayer != Vector3.zero)                                      // If player not in front.
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer); // Calculate the angle that need to rotate.
+                npc_rb.MoveRotation(Quaternion.RotateTowards(npc_rb.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime));
+                                                                                        // Rotate towards player.
+            }
+        }
+        else
+        {
+            if (Time.time >= nextPathUpdateTime)
+            {
+                calculatePath(player.position);
+                nextPathUpdateTime = Time.time + pathUpdateDelayTime;
+            }
+        }
+
+        move(speed, turnSpeed);
+    }
+
+    void patrolTerytory()
+    {
+        // If patrol path is not calculated.
+        if (cornersCount == 0)
+        {
+            calculatePath(patrolLocations[currentPatrolIndex]);
         
-        // Check Angle.
-        if (angleBetweenFrontAndPlayer > fovAngle * 0.8f)
-        {
-            return false; // Out of FOV angle.
-        }
-
-        // Check boundaries between AI and Player.
-        if (Physics.Raycast(rayOrigin, directionToPlayer, out hit, detectionRange))
-        {
-            if (hit.transform == playerLocation || hit.collider.CompareTag("Player"))
-            {   
-                return true; // Player is in line of sight.
-            }
-            else return false;
-        }
-        else return false;
-
-        /*        // Previus Code
-        if(Vector3.Angle(transform.forward, (playerLocation.position - transform.position).normalized) <= fovAngle)
-        {
-            if (distanceToPlayer <= detectionRange)
+            // Failsafe: If the targetPosition is anaccessible.
+            if (cornersCount == 0) 
             {
-                RaycastHit hit;
-                Vector3 rayOrigin = transform.position + Vector3.up * rayheightOffset;
-                Vector3 directionToPlayer = (playerLocation.position - transform.position).normalized;
-                
-                if (Physics.Raycast(rayOrigin, directionToPlayer, out hit, detectionRange))
-                {
-                    if (hit.transform == playerLocation || hit.collider.CompareTag("Player"))
-                    {   
-                        //Debug.Log($"Player detected. Distance: {distanceToPlayer}");
-                        return true; // Player is in line of sight.
-                    }
-                    else return false;
-                }
-                else return false;
+                Debug.LogWarning("Found an anaccessible Patrol Location.");
+                currentPatrolIndex++;
+                if (currentPatrolIndex >= patrolLocations.Length) currentPatrolIndex = 0;
+                return; 
             }
-            else return false;
         }
-        else return false;
-        */
+
+        // Move towards patrol Location.
+        move(speed, turnSpeed);
+
+        // Patrol Logic.
+        if (currentCornerIndex >= cornersCount)                 // Check if NPC arrived to the Patrol Location.
+        {
+            currentPatrolIndex++;                               // Select next Patrol Location
+            if (currentPatrolIndex >= patrolLocations.Length)   // If all Patrol Locations checked.
+            {
+                currentPatrolIndex = 0;                         // Reset Patrol.
+            }
+
+            cornersCount = 0;                                   // Reset cornersCount to force calculation of new path.
+        }
     }
-    
-    void moveToTarget(Vector3 targetPosition, float stopAtDistance, float Speed, float turnSpeed, bool patrolMode)
+
+    void investigateLastKnownPossition()
     {
-        // Calculate the path to the target.
-        NavMesh.CalculatePath(transform.position, targetPosition, NavMesh.AllAreas, path);
-            
-        // Always turning towards corner.
-        if(path.corners.Length > 1)
+        if (cornersCount == 0)
         {
-            Vector3 directionToNextCorner = (path.corners[1] - transform.position).normalized;
-            Quaternion targetRotation = Quaternion.LookRotation(directionToNextCorner);
-            enemy_rb.MoveRotation(Quaternion.RotateTowards(enemy_rb.rotation, targetRotation, turnSpeed));
-        }
-                        
-        // Calculating distance to target.
-        float distanceToTarget = Vector3.Distance(transform.position, targetPosition);
-        //Debug.Log($"Distance to Target: {distanceToTarget:F2}");
-            
-        // Moving towards target if needed.
-        if (distanceToTarget > stopAtDistance) // Start moving forward if not close enough.
-        {
-            Vector3 desiredVelocity = transform.forward * Speed;                // Speed = units/sec
-            desiredVelocity.y = enemy_rb.velocity.y;                            // preserve vertical velocity
-            enemy_rb.velocity = Vector3.Lerp(enemy_rb.velocity, desiredVelocity, velocityLerp);
+            calculatePath(lastKnownPlayerPosition);     // Calculate Path to last known player's position.
 
-                    //Debug.Log($"Enemy's velocity: {path}");
-        }
-        else // Stop moving when within stop distance.
-        {
-            Vector3 desiredVelocity = Vector3.zero;
-            desiredVelocity.y = enemy_rb.velocity.y; // preserve vertical velocity
-            enemy_rb.velocity = Vector3.Lerp(enemy_rb.velocity, desiredVelocity, velocityLerp);
-        }
-
-        if (patrolMode)
-        {
-            // Check if reached patrol point.
-            if (distanceToTarget <= 1.0f) // Considered reached if within 1 unit.
+            if (cornersCount == 0)                      // Failsafe: If the targetPosition is anaccessible.
             {
-                // Select random patrol point.
-                currentPatrolIndex = UnityEngine.Random.Range(0, patrolLocations.Length);
-                currentPatrolLocation = patrolLocations[currentPatrolIndex];
-
-                Debug.Log($"Reached patrol point. Moving to next point: {currentPatrolLocation}");
+                currentState = AIState.Patrol;          // Change npc's state to PatrolMode.
+                return; 
             }
         }
 
+        move(speed, turnSpeed);                     // Move towards that position.
+
+        if (currentCornerIndex >= cornersCount)     // If npc arived at that position. Note: he couldn't find the player.
+        {            
+            currentState = AIState.Patrol;          // Change npc's state to PatrolMode.
+            cornersCount = 0;                       // Reset cornerCount to force npc to calculate path again in whatever mode he is.
+        }
+    }
+
+    void move(float speed, float TurnSpeed)
+    {   
+        // If we dont have to move.
+        if (cornersCount == 0 || currentCornerIndex >= cornersCount)  
+        {
+            Vector3 stopVelocity = new Vector3(0, npc_rb.velocity.y, 0); // Create zero velocity to stop mooving but keep y unvulnerable for proper gravity logic.
+            npc_rb.velocity = Vector3.Lerp(npc_rb.velocity, stopVelocity, velocityLerp);    // Constantly change velosity to stop.
+            return;                                                                         // Exit from move function.
+        }
+
+        // Logic for movement.
+        Vector3 currentPos = npc_GameObject.transform.position;                 // Find Current Position of the npc
+        Vector3 targetCorner = pathCorners[currentCornerIndex];                 // Find where npc have to go.
+        targetCorner.y = currentPos.y;                                          // Make target corners height equal to npc's height.
+        float distanceToCorner = Vector3.Distance(currentPos, targetCorner);    // Find the distance to travel till targetCorner.
+
+        // if near the targetCorner select next targetCorner.
+        if(distanceToCorner < 0.5f)
+        {
+            currentCornerIndex++;
+            if (currentCornerIndex >= cornersCount) return;     // Stop if reached the target and dont have where to go.
+
+            targetCorner = pathCorners[currentCornerIndex];     // Find next location of the corner.
+            targetCorner.y = currentPos.y;                      // Again Make target corners height equal to npc's height.
+        }
+
+        // Turn Logic.
+        Vector3 directionToCorner = (targetCorner - currentPos).normalized;
+        if (directionToCorner != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(directionToCorner);
+            npc_rb.MoveRotation(Quaternion.RotateTowards(npc_rb.rotation, targetRotation, TurnSpeed * Time.fixedDeltaTime));
+        }
+
+        // Move Forward Logic.
+        Vector3 desiredVelocity = npc_GameObject.transform.forward * speed;                 // Calculate desired velocity for forward moving.
+        desiredVelocity.y = npc_rb.velocity.y;                                              // Kepp the y velocity for proper gravity logic.
+        npc_rb.velocity = Vector3.Lerp(npc_rb.velocity, desiredVelocity, velocityLerp);     // Apply desired velocity.
 
     }
-    
+
+    void calculatePath(Vector3 targetPosition)
+    {
+        // Calculate the path to targetPosition.
+        NavMesh.CalculatePath(npc_GameObject.transform.position, targetPosition, NavMesh.AllAreas, path);
+
+        // (Zero Allocation) update the Vector3 List with new calculated path and return the # of valid corners.
+        cornersCount = path.GetCornersNonAlloc(pathCorners);
+        currentCornerIndex = 0;     // Reset corner target with first calculated corner.
+
+    }
+
     //Shoot a projectile if nextFireTime has come.
     void shootWhenReady()
     {
-        if (shellObject == null || shellSpawnPoint == null)
+        if (shellSpawnPoint == null)
         {
-            Debug.LogError("Projectile Prefab or Spawn Point is missing! Cannot shoot.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #endif
+            Debug.LogError("Spawn Point (FirePoint) is missing! Cannot shoot.");
             return;
         }
 
         if (Time.time < nextFireTime) //Check if ready to fire.
         {
             return; // Not ready to fire yet.
-        }
-        else // Fire projectile.
+        }else                                                                           // Fire projectile.
         {
-            GameObject projectile = Instantiate(shellObject, shellSpawnPoint.position, shellSpawnPoint.rotation);
-            projectile.transform.localScale = Vector3.one * shellSize;                          // Set projectile size.
-            projectile.GetComponent<Shell_Behavior>().getDamageMultiplier = damageMultiplier;   // Set damage multiplier.
-
-            Collider projectileCollider = projectile.GetComponent<Collider>();
-            Physics.IgnoreCollision(capsuleCollider, projectileCollider);                       // Ignore collision with self.
-
-            Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
-            projectileRb.AddForce(shellSpawnPoint.forward * shellSpeed, ForceMode.VelocityChange);
-            
-            Destroy(projectile, timeToDestroyProjectile);                                       // Destroy projectile after specified time to clean up.
-            nextFireTime = Time.time + fireDelayTime;                                           // Schedule next fire time.
-            
-            Debug.Log("Shoot at player.");
-            return;
-        }
-
-        
-    }
-
-    // Check if target is in front of enemy.
-    bool checkIfTargetInFront(Transform enemyGameObject, Transform playerGameObject)
-    {
-        Vector3 directionToPlayer = (playerGameObject.transform.position - enemyGameObject.transform.position).normalized;
-        float dotProduct = Vector3.Dot(enemyGameObject.transform.forward, directionToPlayer);   // Dot product to check if in front.
-        return dotProduct > 0.90f;                                                              // True if player is in front.
-        
-    }
-
-    // End of my Functions.==============================
- 
-    void Update()
-    {     
-         // Empty Update function.
-    }
-
-    void FixedUpdate()
-    {
-        // Check if agent and playerGameObject are still allive.
-        if (agent == null || playerGameObject == null)
-        {
-            Debug.LogWarning("NavMeshAgent or Player GameObject not found.");
-            return;
-        }
-        
-        // Try to detect player.
-        if (IsPlayerInLineOfSight()) // If player is visible.
-        {   
-            // Chase the player.
-            isPatrolling = false;
-            moveToTarget(playerLocation.position, stopAtDistance, chaseSpeed, turnSpeed, isPatrolling);
-
-            // Shoot at the player if in front.
-            if (checkIfTargetInFront(enemyGameObject.transform, playerGameObject.transform))
+            GameObject projectile = ObjectPooler.Instance.GetPooledObject();            // Get an shell from the pool.
+            if (projectile != null)                                                     // Check if an shell is found.
             {
-                shootWhenReady();
+                // Set correct parameters for the shell
+                projectile.transform.position = shellSpawnPoint.position;               // Set shell's position.
+                projectile.transform.rotation = shellSpawnPoint.rotation;               // Set shell's rotation.
+                projectile.transform.localScale = Vector3.one * shellSize;              // Set shell's scale.
+                projectile.SetActive(true);                                             // Activate the shell.
+
+                if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
+                {
+                    shellBehavior.getDamageMultiplier = damageMultiplier;               // Set the damage multiplier.
+                    shellBehavior.SetShooter(npc_capsuleCollider);                      // Let shellBehavior to know who is shooting.
+                }
+
+                if (projectile.TryGetComponent<Rigidbody>(out Rigidbody projectileRb))
+                {
+                    projectileRb.velocity = Vector3.zero;                                                   // Reset velocity.
+                    projectileRb.angularVelocity = Vector3.zero;                                            // Reset angular velocity.
+                    projectileRb.AddForce(shellSpawnPoint.forward * shellSpeed, ForceMode.VelocityChange);  // Add force to shell.
+                }
             }
-            
+            nextFireTime = Time.time + fireDelayTime;                                   // Schedule next fire time.
+            Debug.Log("Enemy has shot a projectile.");
         }
-        else
-        {
-            // Start Patroling.
-            isPatrolling = true;
-            moveToTarget(currentPatrolLocation, 0f, chaseSpeed, turnSpeed, isPatrolling);
-        }
-    
-        // 
-        if (countexistingprojectiles > 0)
-        {
-            // Here you can implement logic to track existing projectiles if needed.
-            // For now, we just log the count.
-            // Debug.Log($"Existing Projectiles: {countexistingprojectiles}");
-        }
+
     }
+
+    // Check if target is within 45 degree angle infront of the npc.
+    bool checkIfTargetInFront(Transform player, Transform npc)
+    {
+        Vector3 playerPos2D = new Vector3(player.position.x, npc.position.y, player.position.z);    // Find the players position in x,z axes.
+        Vector3 directionToPlayer = (playerPos2D - npc.position).normalized;
+        
+        float angle = Vector3.Angle(npc.forward, directionToPlayer);                                // Calculate the angle to player.
+        
+        return angle <= angleToShoot/2f;                                                            // Return true if withing the FOV.
+    }
+
+    bool isPlayerInLineOfSight(Transform player, Transform npc)
+    {
+        // Distance check.
+        float distanceToPlayer = Vector3.Distance(npc.position, player.position);                   // Calculate the distance between npc and player.
+        if (distanceToPlayer > detectionRange) return false;                                        // Check if the npc is close enough to see the player.
+
+        // Angle check.
+        Vector3 playerPos2D = new Vector3(player.position.x, npc.position.y, player.position.z);    // Find the players position in x,z axes.
+        Vector3 directionToPlayer2D = (playerPos2D - npc.position).normalized;                      
+        float angle = Vector3.Angle(npc.forward, directionToPlayer2D);                              // Calculate the angle to player.
+        if (angle > detectionAngle / 2f) return false;                                              // Return False if angle is bigger than detectionAngle.
+
+        // Distance and Angle is ok.
+        // Prepare ray's variables for proper work.
+        Vector3 rayOrigin = npc.position + Vector3.up * rayheightOffset;            // Set the starting point of ray.
+        Vector3 targetCenter = player.position + Vector3.up * rayheightOffset;      // Find the player's gameObject center.
+        Vector3 rayDirection = (targetCenter - rayOrigin).normalized;               // Set the direction of ray towards player's center.
+
+        // Shoot rays to find if player is visible.
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, detectionRange))
+        {
+            // If ray hit player's gameObject.
+            if (hit.transform == player || hit.collider.CompareTag("Player"))
+            {
+                return true;    // Player is IN line of sight.
+            }
+        }
+
+        return false;           // Player is NOT in line of sight.
+    }
+    // End of my Functions.==============================
+
 }
 

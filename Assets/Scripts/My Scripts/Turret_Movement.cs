@@ -9,13 +9,11 @@ public class Turret_Movement : MonoBehaviour
 
 
     [Header("Tank Shooting Parameters")]
-    public GameObject shellObject;          // The shell prefab to be fired.
     public Transform shellSpawnPoint;       // Where the shell is spawned from.
     public float shellSize;                 // Volume of the fired shell
     public float shellSpeed;                // speed of the fired shell (units/sec).
     public float fireDelayTime;             // Fire delay (seconds between shots).
     public float nextFireTime;              // Time when the AI can fire next.
-    public float timeToDestroyProjectile;   // Time after which the projectile is destroyed.
     public float damageMultiplier;          // Damage multiplier for projectiles.
 
     [Header("Audio Components")]
@@ -43,7 +41,9 @@ public class Turret_Movement : MonoBehaviour
         if (shootFiringAudioSource == null || shootReloadAudioSource == null)
         {
             Debug.LogError("Audio Sources for shooting are not assigned properly!");
-            UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;       // If running in the Unity Editor.
+            #endif
         }
 
         // Setup Firing Audio Source.
@@ -70,22 +70,18 @@ public class Turret_Movement : MonoBehaviour
         tank_capsuleCollider = GetComponentInParent<CapsuleCollider>();
 
         // Intialize Shooting Parameters.
-        shellObject = Resources.Load<GameObject>("My_Shell");   // Load shell prefab.
         shellSpawnPoint = transform.Find("FirePoint");              // Find shell spawn point.
-        shellSize = 5f;                                       // Size of the fired shell.
-        shellSpeed = 200f;                                     // Speed of the fired shell (units/sec).
-        fireDelayTime = 1.5f;                                     // Fire delay (seconds between shots).
-        nextFireTime = 0f;                                       // Time when the AI can fire next.
-        timeToDestroyProjectile = 10f;                                      // Time after which the projectile is destroyed.
-        damageMultiplier = 1.0f;                                     // Damage multiplier for projectiles.
     }
 
     // Start of my Functions.==============================
     bool canIshoot()
     {
-        if (shellObject == null || shellSpawnPoint == null)
-        {
-            Debug.LogError("Projectile Prefab or Spawn Point is missing! Cannot shoot.");
+        if (shellSpawnPoint == null) 
+        {   
+            Debug.LogError("Shell Spawn Point is missing! Cannot shoot.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;   // If running in the Unity Editor.
+            #endif
             return false;
         }
 
@@ -112,20 +108,31 @@ public class Turret_Movement : MonoBehaviour
         float rotate_pressed = Input.GetAxis("Horizontal2");
         transform.Rotate(Vector3.up, rotate_pressed * rotate_speed * Time.deltaTime);
 
-        // Shoot when shoot button is pressed.
-        if (Input.GetButtonDown("Fire1") && canIshoot())
+        
+        if (Input.GetButtonDown("Fire1") && canIshoot())                                // Check if can shoot.
         {
-            // Shoot projectile.
-            GameObject projectile = Instantiate(shellObject, shellSpawnPoint.position, shellSpawnPoint.rotation);
-            projectile.transform.localScale = Vector3.one * shellSize;                          // Set projectile size.
-            projectile.GetComponent<Shell_Behavior>().getDamageMultiplier = damageMultiplier;   // Set damage multiplier.
+            GameObject projectile = ObjectPooler.Instance.GetPooledObject();            // Get an shell from the pool.
+            if (projectile != null)                                                     // Check if an shell is found.
+            {
+                // Set correct parameters for the shell
+                projectile.transform.position = shellSpawnPoint.position;               // Set shell's position.
+                projectile.transform.rotation = shellSpawnPoint.rotation;               // Set shell's rotation.
+                projectile.transform.localScale = Vector3.one * shellSize;              // Set shell's scale.
+                projectile.SetActive(true);                                             // Activate the shell.
 
-            Collider projectileCollider = projectile.GetComponent<Collider>();
-            Physics.IgnoreCollision(tank_capsuleCollider, projectileCollider);                  // Ignore collision with self.
+                if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
+                {
+                    shellBehavior.getDamageMultiplier = damageMultiplier;               // Set the damage multiplier.
+                    shellBehavior.SetShooter(tank_capsuleCollider);
+                }
 
-            Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
-            projectileRb.AddForce(shellSpawnPoint.forward * shellSpeed, ForceMode.VelocityChange);
-            Destroy(projectile, timeToDestroyProjectile);                                       // Destroy projectile after specified time to clean up.
-        }
+                if (projectile.TryGetComponent<Rigidbody>(out Rigidbody projectileRb))
+                {
+                    projectileRb.velocity = Vector3.zero;                                                   // Reset velocity.
+                    projectileRb.angularVelocity = Vector3.zero;                                            // Reset angular velocity.
+                    projectileRb.AddForce(shellSpawnPoint.forward * shellSpeed, ForceMode.VelocityChange);  // Add force to shell.
+                }
+            }
+}
     }
 }

@@ -1,7 +1,15 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Quit_Handler : MonoBehaviour
+public class Game_Settings : MonoBehaviour
 {
+    void Awake()
+    {
+        Application.targetFrameRate = 165;    // Set the target frame rate to 165.
+        QualitySettings.vSyncCount = 0;       // Disable vertical sync.
+    }
+    
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Escape))
@@ -19,4 +27,3 @@ public class Quit_Handler : MonoBehaviour
                 
     }
 }
-

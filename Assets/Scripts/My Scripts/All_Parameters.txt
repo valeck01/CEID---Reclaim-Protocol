@@ -1,0 +1,158 @@
+================================================================================
+                    CEID RECLAIM PROTOCOL - TANK PARAMETERS REFERENCE
+================================================================================
+Αυτό το αρχείο περιέχει όλες τις αρχικές (hardcoded) τιμές που υπήρχαν στα scripts
+πριν τις αντικαταστήσουμε με Inspector variables, για λόγους backup και αναφοράς.
+
+--------------------------------------------------------------------------------
+1. PLAYER TANK (Tank_Movement.cs / New_Tank_Movement.cs)
+--------------------------------------------------------------------------------
+* RIGIDBODY:
+  - Mass: 1000.0f
+  - Drag: Originally 10.0f (Fixed to 0.0f for Lerp compatibility)
+  - Angular Drag: Originally 10.0f (Fixed to 0.0f)
+  - Is Kinematic: false
+  - Use Gravity: false
+  - Constraints: FreezeRotationX | FreezeRotationZ | FreezePositionY
+
+* CAPSULE COLLIDER:
+  - Enabled: true
+  - Is Trigger: false
+  - Center: (0.0f, 1.60f, -0.1f)
+  - Radius: 1.10f
+  - Height: 3.15f
+  - Direction: 2 (Z-axis / Forward)
+
+* SPAWN TRANSFORM:
+  - Position: (-165.0f, 0.0f, -180.0f)
+  - Rotation: (0.0f, 0.0f, 0.0f)
+
+* ENGINE AUDIO (Resources -> AudioClips/EngineDriving):
+  - Volume: 0.2f
+  - Loop: true
+  - Play On Awake: true
+  - Spatial Blend: 1.0f (3D Sound)
+  - Pitch: 1.0f
+  - Rolloff Mode: Linear
+  - Min Distance: 1.0f
+  - Max Distance: 100.0f
+
+* VEHICLE PARAMETERS:
+  - Max_Tank_Speed: 100.0f
+  - Max_Turn_Speed: 60.0f
+  - speed_Difference (or smoothness): 0.1f
+
+--------------------------------------------------------------------------------
+2. ENEMY TANK (AI_Behavior.cs)
+--------------------------------------------------------------------------------
+* RIGIDBODY:
+  - Mass: 100.0f
+  - Drag: 5.0f
+  - Angular Drag: 5.0f
+  - Is Kinematic: false
+  - Use Gravity: true
+  - Constraints: FreezeRotationX | FreezeRotationZ | FreezePositionY
+
+* CAPSULE COLLIDER:
+  - Enabled: true
+  - Is Trigger: false
+  - Center: (0.0f, 1.20f, -0.1f)
+  - Radius: 1.10f
+  - Height: 3.15f
+  - Direction: 2 (Z-axis / Forward)
+
+* SPAWN TRANSFORM:
+  - Position: (155.0f, 0.0f, -36.0f)
+  - Rotation: (0.0f, -87.0f, 0.0f)
+
+* VEHICLE PARAMETERS:
+  - chaseSpeed: 40.0f
+  - turnSpeed: 2.0f
+  - detectionRange: 150.0f
+  - fovAngle: 120.0f
+  - stopAtDistance: 50.0f
+  - rayheightOffset: 2.0f
+
+* DEFAULT PATROL WAYPOINTS:
+  - Waypoint 1: (-80.0f, 0.0f, 180.0f)
+  - Waypoint 2: (33.0f, 0.0f, 176.5f)
+  - Waypoint 3: (190.0f, 0.0f, -120.0f)
+  - Waypoint 4: (20.0f, 0.0f, -40.0f)
+  - Waypoint 5: (90.0f, 0.0f, -130.0f)
+  - Waypoint 6: (-120.0f, 0.0f, -10.0f)
+
+--------------------------------------------------------------------------------
+3. PLAYER TURRET & WEAPON (Turret_Movement.cs)
+--------------------------------------------------------------------------------
+* SHOT FIRING AUDIO (Resources -> AudioClips/ShotFiring):
+  - Volume: 1.0f
+  - Loop: false
+  - Play On Awake: false
+  - Spatial Blend: 1.0f (3D Sound)
+  - Pitch: 1.0f
+  - Rolloff Mode: Linear
+  - Min Distance: 1.0f
+  - Max Distance: 100.0f
+
+* SHOT RELOAD AUDIO (Resources -> AudioClips/ShotReload):
+  - Volume: 0.5f
+  - Loop: false
+  - Play On Awake: false
+  - Spatial Blend: 1.0f (3D Sound)
+  - Pitch: 1.0f
+  - Rolloff Mode: Linear
+
+* SHOOTING PARAMETERS:
+  - Spawn Point: Child named "FirePoint"
+  - shellSize: 5.0f
+  - shellSpeed: 200.0f
+  - fireDelayTime: 1.5f
+  - nextFireTime: 0.0f
+  - timeToDestroyProjectile: 10.0f
+  - damageMultiplier: 1.0f
+
+--------------------------------------------------------------------------------
+4. TANK SHELL (Shell_Behavior.cs)
+--------------------------------------------------------------------------------
+* RIGIDBODY:
+  - Mass: 100.0f
+  - Drag: 1.0f
+  - Angular Drag: 0.05f
+  - Is Kinematic: false
+  - Use Gravity: true
+  - Constraints: None
+
+* CAPSULE COLLIDER:
+  - Enabled: true
+  - Is Trigger: false
+  - Provides Contacts: false
+  - Center: (0.0f, 0.0f, 0.15f)
+  - Radius: 0.15f
+  - Height: 0.65f
+  - Direction: 2 (Z-axis / Forward)
+
+--------------------------------------------------------------------------------
+5. PICKUP BONUS (Pickup_Bonus.cs)
+--------------------------------------------------------------------------------
+* CAPSULE COLLIDER:
+  - Enabled: true
+  - Is Trigger: true
+  - Center: (0.0f, 0.0f, 0.0f)
+  - Radius: 0.55f
+  - Height: 4.0f
+  - Direction: 1 (Y-axis)
+
+* MOVEMENT & VALUE PARAMETERS:
+  - rotationSpeed: 25.0f
+  - upDownSpeed: 2.0f
+  - repairAmount: 100.0f
+  - speedBoostMultiplicator: 1.5f
+
+--------------------------------------------------------------------------------
+6. HEALTH SYSTEM (Health_System.cs)
+--------------------------------------------------------------------------------
+* PARAMETERS:
+  - Max_Health: 300.0f
+  - Starting_Health: 150.0f
+  - damageAmount: 10.0f
+================================================================================

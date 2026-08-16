@@ -8,6 +8,9 @@ TagManager:
   - Fire_Point
   - Moon_Tag
   - Sun_Tag
+  - CameraCanFollow
+  - Player_Turret
+  - Enemy_Player_Turret
   layers:
   - Default
   - TransparentFX

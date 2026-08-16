@@ -2,26 +2,21 @@ using UnityEngine;
 
 public class Shell_Behavior : MonoBehaviour
 {
-    [Header("Components")]
+
     public Transform shell_transform;
     public Rigidbody shell_rigidbody;
     public CapsuleCollider shell_capsuleCollider;
 
     [Header("Shell Parameters")]
-    public float getDamageMultiplier;   // Damage multiplier for this shell
+    public float getDamageMultiplier;           // Damage multiplier for this shell.
+    public float lifeTime = 10f;                // Lifetime of the shell in case it does not collide with anything.
+    private Collider currentShooterCollider;    // Variable to remember who is shooting the shell.
 
-
-
-
-    // Start is called before the first frame update
     void Start()
     {
         
         // Initialize Shell's Rigidbody.
         shell_rigidbody = GetComponent<Rigidbody>();
-        shell_rigidbody.mass = 100f;
-        shell_rigidbody.drag = 1f;
-        shell_rigidbody.angularDrag = 0.05f;
         shell_rigidbody.isKinematic = false;
         shell_rigidbody.useGravity = true;
         shell_rigidbody.constraints = 
@@ -33,7 +28,6 @@ public class Shell_Behavior : MonoBehaviour
         shell_capsuleCollider = GetComponent<CapsuleCollider>();
         shell_capsuleCollider.enabled     = true;
         shell_capsuleCollider.isTrigger   = false;
-        shell_capsuleCollider.providesContacts = false;
         shell_capsuleCollider.center      = new Vector3(0f, 0f, 0.15f);
         shell_capsuleCollider.radius      = 0.15f;
         shell_capsuleCollider.height      = 0.65f;
@@ -45,23 +39,41 @@ public class Shell_Behavior : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Destroy(gameObject);
-        Debug.Log("Shell collided with " + collision.gameObject.name);
+        CancelInvoke("DeactivateShell"); // Cancel the automatic deactivation.
+        gameObject.SetActive(false);     // Return the shell to the pool.
+    }
 
-        Health_System healthSystem = collision.gameObject.GetComponent<Health_System>();
-        if (healthSystem != null)
+    private void OnEnable()
+    {
+        CancelInvoke("DeactivateShell");
+        Invoke("DeactivateShell", lifeTime);
+    }
+
+    private void DeactivateShell()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void SetShooter(Collider shooter)
+    {
+        currentShooterCollider = shooter;
+        if (currentShooterCollider != null && shell_capsuleCollider != null)
         {
-            healthSystem.TakeDamage(getDamageMultiplier); // Apply damage with a multiplier of 1.0 (can be adjusted).
+            // Ignore the shooter when the shell is fired.
+            Physics.IgnoreCollision(currentShooterCollider, shell_capsuleCollider, true);
         }
+    }
 
-        // Later we will add explosion effects, damage calculation, etc.
+    private void OnDisable()
+    {
+        if (currentShooterCollider != null && shell_capsuleCollider != null)
+        {
+            // Forget the shooter.
+            Physics.IgnoreCollision(currentShooterCollider, shell_capsuleCollider, false); 
+            currentShooterCollider = null;
+        }
     }
 
     // End of my Functions.================================
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

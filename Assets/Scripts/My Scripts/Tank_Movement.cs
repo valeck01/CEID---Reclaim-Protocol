@@ -3,9 +3,12 @@ using UnityEngine;
 
 public class Tank_Movement : MonoBehaviour
 {
+    private float axisX;
+    private float axisZ;
+
     [Header("Tank Parameters")]
     public float Max_Tank_Speed;
-    public float speed_Difference;
+    [Range(0f, 1f)]public float speed_Difference;
     public float Max_Turn_Speed;
 
     [Header("Components")]
@@ -25,7 +28,9 @@ public class Tank_Movement : MonoBehaviour
         if (audioSource == null)
         {
             Debug.LogError("Audio Source for tank engine is not assigned properly!");
-            UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #endif
         }
 
         audioSource.volume = 0.2f;                                                  // Adjust volume as needed.
@@ -37,11 +42,14 @@ public class Tank_Movement : MonoBehaviour
         audioSource.maxDistance = 100f;                                             // Max distance for sound audibility.
         audioSource.minDistance = 1f;                                               // Min distance for sound audibility.
         
+        
         // Initialize Vehicle's Rigidbody.
         rb = GetComponent<Rigidbody>();
+        /*
         rb.mass = 1000f;
-        rb.drag = 10f;
-        rb.angularDrag = 10f;
+        rb.drag = 0f;
+        rb.angularDrag = 0f;
+        */
         rb.isKinematic = false;
         rb.useGravity = false;
         rb.constraints = 
@@ -50,11 +58,13 @@ public class Tank_Movement : MonoBehaviour
             RigidbodyConstraints.FreezeRotationZ |
             RigidbodyConstraints.FreezePositionY
         );
-
+        
+        /*
         // Initialize Vehicle Parameters.
         Max_Tank_Speed      = 100f;      // max forward speed (units/sec).
         speed_Difference    = 0.1f;      // smoothing for velocity changes
         Max_Turn_Speed      = 60f;       // degrees/sec rotation speed.
+        */
 
         // Initialize Vehicle's CapsuleCollider.
         capsuleCollider = GetComponent<CapsuleCollider>();
@@ -72,19 +82,17 @@ public class Tank_Movement : MonoBehaviour
     
     void Update()
     {
-        
-    }
-    void FixedUpdate()
-    {
-        float axisX = Input.GetAxis("Horizontal1"); // Turning Horizontal.
-        float axisZ = Input.GetAxis("Vertical1");   // Forward/Backward Movement.
+        axisX = Input.GetAxis("Horizontal1"); // Turning Left/Right.
+        axisZ = Input.GetAxis("Vertical1");   // Forward/Backward Movement.
 
         if (axisZ < 0)
         {
             axisZ *= 0.5f;      // Apply half speed when going backwards.
             axisX = -axisX;     // Reverse horizontal axis when going backwards.
         }
-
+    }
+    void FixedUpdate()
+    {
         // Move tank forward/backward.
         Vector3 desiredVelocity = axisZ * Max_Tank_Speed * transform.forward;
         rb.velocity = Vector3.Lerp(rb.velocity, desiredVelocity, speed_Difference);

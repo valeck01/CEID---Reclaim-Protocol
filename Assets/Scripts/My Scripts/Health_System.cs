@@ -85,7 +85,9 @@ public class Health_System : MonoBehaviour
         if (explosionSoundPrefab == null)
         {
             Debug.LogError("ExplosionAudio Prefab not found in Resources folder! Sound cannot be played.");
+            #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #endif
         }
         // Initialize explosion effect prefab later.
     }

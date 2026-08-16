@@ -21,7 +21,8 @@ public class Pickup_Bonus : MonoBehaviour
     [Header("Audio Effects")]
     public GameObject bonusSoundPrefab;
 
-    public enum BonusType{ // Posibility of adding more bonus types in future.
+    public enum BonusType
+    { // Posibility of adding more bonus types in future.
         Health, // Healing bonus.
         Speed, // Speed boost bonus.
         None
@@ -33,11 +34,11 @@ public class Pickup_Bonus : MonoBehaviour
     void Start()
     {
         // Initialize Components.
-        bonusObject             = gameObject;
-        myLocation              = transform;
-        playerObject            = GameObject.FindGameObjectWithTag("Player");
-        bonusCapsuleCollider    = GetComponent<CapsuleCollider>();
-        
+        bonusObject = gameObject;
+        myLocation = transform;
+        playerObject = GameObject.FindGameObjectWithTag("Player");
+        bonusCapsuleCollider = GetComponent<CapsuleCollider>();
+
         // Get and Setup "Light" component from child object.
         lightPoint = GetComponentInChildren<Light>();
         if (lightPoint != null)
@@ -57,23 +58,23 @@ public class Pickup_Bonus : MonoBehaviour
                 case BonusType.None:
                     Debug.LogWarning("No bonus type specified so no light color set.");
                     break;
-            }           
+            }
         }
         else Debug.LogWarning("No Light component found in child objects.");
 
         // Initialize Bonus Parameters.
-        rotationSpeed           = 25f;      // degrees per second.
-        upDownSpeed             = 2f;       // units per second.
-        repairAmount            = 100f;     // amount of health to repair.
+        rotationSpeed = 25f;      // degrees per second.
+        upDownSpeed = 2f;       // units per second.
+        repairAmount = 100f;     // amount of health to repair.
         speedBoostMultiplicator = 1.5f;     // speed boost multiplier.
 
         // Initialize Bonus Capsule Collider.
-        bonusCapsuleCollider.enabled     = true;                        // Enable the collider.
-        bonusCapsuleCollider.isTrigger   = true;                        // Set as trigger collider.
-        bonusCapsuleCollider.center      = new Vector3(0f, 0f, 0f);     // Center of the collider.
-        bonusCapsuleCollider.radius      = 0.55f;                       // Radius of the collider.
-        bonusCapsuleCollider.height      = 4f;                          // Height of the collider.
-        bonusCapsuleCollider.direction   = 1;                           // Y-axis
+        bonusCapsuleCollider.enabled = true;                        // Enable the collider.
+        bonusCapsuleCollider.isTrigger = true;                        // Set as trigger collider.
+        bonusCapsuleCollider.center = new Vector3(0f, 0f, 0f);     // Center of the collider.
+        bonusCapsuleCollider.radius = 0.55f;                       // Radius of the collider.
+        bonusCapsuleCollider.height = 4f;                          // Height of the collider.
+        bonusCapsuleCollider.direction = 1;                           // Y-axis
 
         // Store initial location.
         initialLocation = myLocation.position;
@@ -92,7 +93,9 @@ public class Pickup_Bonus : MonoBehaviour
         if (bonusSoundPrefab == null)
         {
             Debug.LogWarning("Bonus sound prefab not found in Resources folder!");
-            UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #endif
         }
     }
 
@@ -121,7 +124,7 @@ public class Pickup_Bonus : MonoBehaviour
                 case BonusType.Speed:
                     ApplySpeedBonus(other.gameObject);      // Call ApplySpeedBonus function.
                     Debug.Log("Speed Bonus Applied!");
-                    break;                           
+                    break;
             }
 
             // Play bonus sound effect.
@@ -134,19 +137,17 @@ public class Pickup_Bonus : MonoBehaviour
 
     void ApplyHealthBonus(GameObject player)
     {
-        Health_System healthSystem = player.GetComponent<Health_System>();
-        if (healthSystem != null)
-        {
-            healthSystem.Repair(repairAmount); // Repair the player by the specified amount.
+        if (player.TryGetComponent<Health_System>(out Health_System healthSystem)) 
+        {                                            // Check if the object has a Health_System component.
+            healthSystem.Repair(repairAmount);       // Repair the player by the specified amount.
         }
     }
 
     void ApplySpeedBonus(GameObject player)
     {
-        Tank_Movement tankMovement = player.GetComponent<Tank_Movement>();
-        if (tankMovement != null)
+        if (player.TryGetComponent<New_Tank_Movement>(out New_Tank_Movement tankMovement))
         {
-            tankMovement.Max_Tank_Speed *= speedBoostMultiplicator; // Boost the player's speed.
+         tankMovement.Max_Tank_Speed *= speedBoostMultiplicator; // Boost the player's speed.
             // Future: Implement a timer to reset speed after a duration.
         }
     }
