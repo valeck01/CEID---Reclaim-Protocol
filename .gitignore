@@ -104,3 +104,8 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Personal test scenes - not for collaboration
+Assets/Scenes/Scene_Level_1.unity
+Assets/Scenes/Scene_Level_1.unity.meta
+Assets/Scenes/Scene_Level_1/
