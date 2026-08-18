@@ -18,8 +18,11 @@ public class New_Tank_Movement : MonoBehaviour
     */
 
     [Header("Engine Audio")]                                    
-    [SerializeField] private AudioSource audioSource;           // Let Inspector choose Audio Source.
-    [SerializeField] private AudioClip engineSound;             // Let Inspector choose Engine Sound.
+    [SerializeField] private AudioSource audioSource;           // Engine's Audio Source.
+    [SerializeField] private AudioClip engineIdleClip;          // Let Inspector to set the EngineIdle clip.
+    [SerializeField] private AudioClip engineDrivingClip;       // EngineDriving clip.
+    public float pitchRange = 0.2f;                             // Pitch Range.
+    private float originalPitch;                                // Original pitch of the AudioSource.
 
     private Rigidbody rb;                   
     private CapsuleCollider capsuleCollider;
@@ -74,9 +77,10 @@ public class New_Tank_Movement : MonoBehaviour
         }
 
         // Start the engine sound and set it to loop.
-        audioSource.clip = engineSound;                             // Set the engine sound to the one set in the Inspector.
-        audioSource.loop = true;                                    // Set the engine sound to loop.
-        audioSource.Play();                                         // Play the engine sound.
+        originalPitch = audioSource.pitch;                          // Apply Inspectors initial Pitch.
+        audioSource.clip = engineIdleClip;                          // Set the engineIdle sound to the one set in the Inspector.
+        audioSource.loop = true;                                    // Set the engineIdle sound to loop.
+        audioSource.Play();                                         // Play the engineIdle sound.
 
     }
 
@@ -102,8 +106,43 @@ public class New_Tank_Movement : MonoBehaviour
         Quaternion turnRotation = Quaternion.Euler(desiredTurnVelocity * Time.fixedDeltaTime);
         rb.MoveRotation(rb.rotation * turnRotation);
 
+        
+        EngineAudio(); // Let EngineAudio function to handle the sound when tank is mooving.
+
+        /*
         // Handle engine sound based on movement.
         float desiredAudioVolume = MathF.Max(Mathf.Abs(axisZ), Mathf.Abs(axisX)) / 2f;              // Volume based on movement input.
         audioSource.volume = Mathf.Lerp(audioSource.volume, desiredAudioVolume, speed_Smoothness);  // Volume based on forward/backward input.
+        */
     }
+
+    // Start of my Functions.============================
+    private void EngineAudio()
+    {
+        bool isMoving = Mathf.Abs(axisZ) > 0.1f || Mathf.Abs(axisX) > 0.1f;     // Check if tank is mooving.
+
+        // Change between Engine Idle and Engine Driving.
+        if (isMoving)                                                           // Tank is Mooving.
+        {
+            if (audioSource.clip == engineIdleClip)                               
+            {
+                audioSource.clip = engineDrivingClip;                           // Change to Driving Clip.
+                audioSource.Play();
+            }
+        }
+        else                                                                    // Tank does not Mooving.
+        {
+            if (audioSource.clip == engineDrivingClip)
+            {
+                audioSource.clip = engineIdleClip;                              // Change to Idle Clip.
+                audioSource.Play();
+            }
+        }
+
+        float movementMagnitude = Mathf.Max(Mathf.Abs(axisZ), Mathf.Abs(axisX));            // Calculate the audios volume based on speed.
+
+        float targetPitch = originalPitch + (movementMagnitude * pitchRange);               // Calculate target pitch for effect of speeding up.
+        audioSource.pitch = Mathf.Lerp(audioSource.pitch, targetPitch, speed_Smoothness);   // Set calculated pitch.
+    }
+    // End of my Functions.==============================
 }

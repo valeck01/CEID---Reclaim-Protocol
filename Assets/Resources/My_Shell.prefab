@@ -152,3 +152,5 @@ MonoBehaviour:
   shell_rigidbody: {fileID: 0}
   shell_capsuleCollider: {fileID: 0}
   getDamageMultiplier: 0
+  lifeTime: 10
+  explosionPrefab: {fileID: 195792, guid: 89e78efe92dfe5a42837b392cdb0bf9e, type: 3}

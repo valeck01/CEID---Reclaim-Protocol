@@ -12,7 +12,10 @@ public class Shell_Behavior : MonoBehaviour
     public float lifeTime = 10f;                // Lifetime of the shell in case it does not collide with anything.
     private Collider currentShooterCollider;    // Variable to remember who is shooting the shell.
 
-    void Start()
+    [Header("Explosion Settings")]
+    [SerializeField] private GameObject explosionPrefab;    // ShellExplosion Prefab (Visual Effects + Audio)
+
+    void Awake()
     {
         
         // Initialize Shell's Rigidbody.
@@ -26,12 +29,14 @@ public class Shell_Behavior : MonoBehaviour
 
         // Initialize Shell's Capsule Collider.
         shell_capsuleCollider = GetComponent<CapsuleCollider>();
+        /*
         shell_capsuleCollider.enabled     = true;
         shell_capsuleCollider.isTrigger   = false;
         shell_capsuleCollider.center      = new Vector3(0f, 0f, 0.15f);
         shell_capsuleCollider.radius      = 0.15f;
         shell_capsuleCollider.height      = 0.65f;
         shell_capsuleCollider.direction   = 2; // Z-axis
+        */
         
     }
 
@@ -39,6 +44,33 @@ public class Shell_Behavior : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        // Apply damage if hit a tank.
+        if (collision.gameObject.TryGetComponent<Health_System>(out Health_System targetHealth))
+        {
+            targetHealth.TakeDamage(getDamageMultiplier);
+        }
+
+        // Create prefab for VFX + ExplosionSound.
+        if (explosionPrefab != null)
+        {
+            // Show explosion VFX.
+            GameObject explosionInstance = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+            ParticleSystem[] particleSystems = explosionInstance.GetComponentsInChildren<ParticleSystem>();
+            foreach (ParticleSystem ps in particleSystems)
+            {
+                ps.Play();
+            }
+
+            // Play Explosion Sound.
+            AudioSource explosionAudio = explosionInstance.GetComponent<AudioSource>();
+            if (explosionAudio != null)
+            {
+                explosionAudio.Play();
+            }
+
+            Destroy(explosionInstance, 2f); 
+        }
+
         CancelInvoke("DeactivateShell"); // Cancel the automatic deactivation.
         gameObject.SetActive(false);     // Return the shell to the pool.
     }

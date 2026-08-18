@@ -15,6 +15,8 @@ public class AI_Behavior : MonoBehaviour
     
     [Header("NavMesh Variables")]
     private NavMeshPath path;
+    private UnityEngine.AI.NavMeshAgent npc_agent;
+
     private Vector3[] pathCorners = new Vector3[64];
     private int cornersCount = 0;
     private int currentCornerIndex = 0;
@@ -22,7 +24,7 @@ public class AI_Behavior : MonoBehaviour
     public float pathUpdateDelayTime = 0.5f;
 
     [Header("Patrol/Chasing/Investigate/Shooting Settings")]
-    public Vector3[] patrolLocations;
+    public Transform[] patrolLocations;
     public int currentPatrolIndex;
     public enum AIState {Patrol, Chase, Investigate}
     public AIState currentState = AIState.Patrol;
@@ -47,10 +49,36 @@ public class AI_Behavior : MonoBehaviour
     public float damageMultiplier;          // Damage multiplier for projectiles.
 
     [Range(0f, 1f)] public float velocityLerp = 0.1f; // smoothing for velocity changes
+    
+    [Header("Audio Effects")]
+    public AudioSource engineAudioSource;
+    public AudioClip engineIdleClip;
+    public AudioClip engineDrivingClip;
+    public float pitchRange = 0.2f;
+    private float originalPitch;
+    public AudioSource shootAudioSource;
+    public AudioClip shotFiringClip;
 
     void Start()
     {
+        // Initialize navMesh Settings.
         path = new NavMeshPath();
+        npc_agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        if (npc_agent != null)
+        {
+            // Dont let navMeshAgent to move NPC
+            npc_agent.updatePosition = false;
+            npc_agent.updateRotation = false;
+        }
+        else
+        {
+            Debug.LogError("navMeshAgent component is not applyed to npc: " + npc_GameObject.name);
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #endif
+            return;
+        }
+
 
         // Initialize Player's Game Object.
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -118,6 +146,36 @@ public class AI_Behavior : MonoBehaviour
         if (patrolLocations == null || patrolLocations.Length == 0)             // Check if Inspector assigned atleast one patrol location.
         {
             Debug.LogError("Patrol Locations are not asigned for one or more NPC's.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
+            #endif
+        }
+
+        // Initialize Engine Audio.
+        if (engineAudioSource != null)
+        {
+            originalPitch = engineAudioSource.pitch;
+            engineAudioSource.clip = engineIdleClip;
+            engineAudioSource.Play();
+        }
+        else
+        {
+            Debug.LogError("engineAudioSource is not applyed to NPC tank.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
+            #endif
+        }
+
+        if (shootAudioSource == null)
+        {
+            Debug.LogError("shootAudioSource is not applyed to NPC tank.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
+            #endif
+        }
+        if (shotFiringClip == null)
+        {
+            Debug.LogError("shotFiringClip is not applyed to NPC tank.");
             #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
             #endif
@@ -220,7 +278,7 @@ public class AI_Behavior : MonoBehaviour
         // If patrol path is not calculated.
         if (cornersCount == 0)
         {
-            calculatePath(patrolLocations[currentPatrolIndex]);
+            calculatePath(patrolLocations[currentPatrolIndex].position);
         
             // Failsafe: If the targetPosition is anaccessible.
             if (cornersCount == 0) 
@@ -309,17 +367,36 @@ public class AI_Behavior : MonoBehaviour
         desiredVelocity.y = npc_rb.velocity.y;                                              // Kepp the y velocity for proper gravity logic.
         npc_rb.velocity = Vector3.Lerp(npc_rb.velocity, desiredVelocity, velocityLerp);     // Apply desired velocity.
 
+        // Change between Engine Idle and Engine Driving.
+        float currentSpeed = npc_rb.velocity.magnitude;
+        
+        if (currentSpeed < 0.1f)                                    // NPC does not Mooving.
+        {
+            if (engineAudioSource.clip == engineDrivingClip)
+            {
+                engineAudioSource.clip = engineIdleClip;            // Change to Idle Clip.
+                engineAudioSource.Play();
+            }
+        }
+        else                                                        // NPC is Mooving.
+        {
+            if (engineAudioSource.clip == engineIdleClip)
+            {
+                engineAudioSource.clip = engineDrivingClip;         // Change to Driving Clip.
+                engineAudioSource.Play();
+            }
+        }
+
+        float speedRatio = Mathf.Clamp01(currentSpeed / speed);     // Calculate the audios volume based on speed.
+        engineAudioSource.pitch = originalPitch + (speedRatio * pitchRange);// Set pitch.
+
     }
 
     void calculatePath(Vector3 targetPosition)
     {
-        // Calculate the path to targetPosition.
-        NavMesh.CalculatePath(npc_GameObject.transform.position, targetPosition, NavMesh.AllAreas, path);
-
-        // (Zero Allocation) update the Vector3 List with new calculated path and return the # of valid corners.
-        cornersCount = path.GetCornersNonAlloc(pathCorners);
-        currentCornerIndex = 0;     // Reset corner target with first calculated corner.
-
+        npc_agent.CalculatePath(targetPosition, path);          // Calculate the path to targetPosition.
+        cornersCount = path.GetCornersNonAlloc(pathCorners);    // (Zero Allocation) update the Vector3 List with new calculated path and return the # of valid corners.
+        currentCornerIndex = 0;                                 // Reset corner target with first calculated corner.
     }
 
     //Shoot a projectile if nextFireTime has come.
@@ -363,6 +440,7 @@ public class AI_Behavior : MonoBehaviour
             }
             nextFireTime = Time.time + fireDelayTime;                                   // Schedule next fire time.
             Debug.Log("Enemy has shot a projectile.");
+            shootAudioSource.PlayOneShot(shotFiringClip);
         }
 
     }

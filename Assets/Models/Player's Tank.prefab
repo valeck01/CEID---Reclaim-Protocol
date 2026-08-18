@@ -127,9 +127,10 @@ GameObject:
   - component: {fileID: 5837249830058991699}
   - component: {fileID: 8268703217035287856}
   - component: {fileID: 3852577887752176767}
-  - component: {fileID: 3208922900535640058}
   - component: {fileID: 4125009382570564809}
   - component: {fileID: 4118991204696636617}
+  - component: {fileID: -8641132035221864589}
+  - component: {fileID: 4975930164751980373}
   m_Layer: 0
   m_Name: Player's Tank
   m_TagString: Player
@@ -146,8 +147,8 @@ Transform:
   m_GameObject: {fileID: 5837249830059490739}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -176.3, y: 0, z: -184.8}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5837249830058991711}
@@ -162,9 +163,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5837249830059490739}
   serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Mass: 1000
+  m_Drag: 10
+  m_AngularDrag: 3
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -204,21 +205,6 @@ CapsuleCollider:
   m_Height: 3.15
   m_Direction: 2
   m_Center: {x: 0, y: 1.6, z: -0.1}
---- !u!114 &3208922900535640058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5837249830059490739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bba1926142e5ee4dbb36b17f500ba02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Max_Tank_Speed: 200
-  speed_Difference: 0
-  Max_Turn_Speed: 0
 --- !u!114 &4125009382570564809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -334,6 +320,39 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-8641132035221864589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5837249830059490739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f681cbe6dd3a7a419a573d91f1fc55b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Max_Tank_Speed: 5
+  Max_Turn_Speed: 5
+  speed_Smoothness: 0.5
+  audioSource: {fileID: 0}
+  engineSound: {fileID: 0}
+--- !u!114 &4975930164751980373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5837249830059490739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8b868087ec415f4dac16267f1823518, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  offset: {x: 0, y: 5, z: -15}
+  smoothPossition: 0
+  smoothRotation: 0
 --- !u!1 &5837249830059490741
 GameObject:
   m_ObjectHideFlags: 0
@@ -602,13 +621,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ea483f27683e344b34e6320ab1b371, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shellObject: {fileID: 0}
   shellSpawnPoint: {fileID: 0}
   shellSize: 0
   shellSpeed: 0
   fireDelayTime: 0
   nextFireTime: 0
-  timeToDestroyProjectile: 0
   damageMultiplier: 0
   shootFiringAudioSource: {fileID: 0}
   shootReloadAudioSource: {fileID: 0}

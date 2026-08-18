@@ -17,54 +17,19 @@ public class Turret_Movement : MonoBehaviour
     public float damageMultiplier;          // Damage multiplier for projectiles.
 
     [Header("Audio Components")]
-    public AudioSource shootFiringAudioSource;
-    public AudioSource shootReloadAudioSource;
+    [SerializeField] private AudioSource shootAudioSource;
+    [SerializeField] private AudioClip shotFiringClip;
+    [SerializeField] private AudioClip shotReloadClip;
 
     public float rotate_speed = 60f;
     // Start is called before the first frame update
     void Start()
     {
-        // Initialize Audio Source Array.
-        AudioSource[] audioSources = GetComponents<AudioSource>();
-
-
-        // Initialize Firing Audio Source.
-
-        shootFiringAudioSource = audioSources[0];
-
-        shootFiringAudioSource.clip = Resources.Load<AudioClip>("AudioClips/ShotFiring");   // Load Shell Firing sound.
-        shootReloadAudioSource = audioSources[1];
-
-        shootReloadAudioSource.clip = Resources.Load<AudioClip>("AudioClips/ShotReload");   // Load Shell Reload sound.
-
-        // Check if Audio Sources are assigned correctly.
-        if (shootFiringAudioSource == null || shootReloadAudioSource == null)
+        // Initialize Audio Source
+        if (shootAudioSource == null)
         {
-            Debug.LogError("Audio Sources for shooting are not assigned properly!");
-            #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;       // If running in the Unity Editor.
-            #endif
+            shootAudioSource = GetComponent<AudioSource>();
         }
-
-        // Setup Firing Audio Source.
-        shootFiringAudioSource.volume = 1f;                            // Adjust volume as needed.
-        shootFiringAudioSource.loop = false;                           // Do not loop the firing sound.
-        shootFiringAudioSource.playOnAwake = false;                    // Do not play on awake.
-        shootFiringAudioSource.spatialBlend = 1f;                      // 3D sound.
-        shootFiringAudioSource.pitch = 1f;                             // Normal pitch.
-        shootFiringAudioSource.rolloffMode = AudioRolloffMode.Linear;  // Linear volume rolloff.
-        shootFiringAudioSource.maxDistance = 100f;                     // Max distance for sound audibility.
-        shootFiringAudioSource.minDistance = 1f;                       // Min distance for sound audibility.
-
-
-        // Setup Reload Audio Source.
-
-        shootReloadAudioSource.volume = 0.5f;                           // Adjust volume as needed.
-        shootReloadAudioSource.loop = false;                            // Do not loop the reload sound.
-        shootReloadAudioSource.playOnAwake = false;                     // Do not play on awake.
-        shootReloadAudioSource.spatialBlend = 1f;                       // 3D sound.
-        shootReloadAudioSource.pitch = 1f;                              // Normal pitch.
-        shootReloadAudioSource.rolloffMode = AudioRolloffMode.Linear;   // Linear volume rolloff. 
 
         // Initialize Tank's CapsuleCollider.
         tank_capsuleCollider = GetComponentInParent<CapsuleCollider>();
@@ -72,35 +37,6 @@ public class Turret_Movement : MonoBehaviour
         // Intialize Shooting Parameters.
         shellSpawnPoint = transform.Find("FirePoint");              // Find shell spawn point.
     }
-
-    // Start of my Functions.==============================
-    bool canIshoot()
-    {
-        if (shellSpawnPoint == null) 
-        {   
-            Debug.LogError("Shell Spawn Point is missing! Cannot shoot.");
-            #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;   // If running in the Unity Editor.
-            #endif
-            return false;
-        }
-
-        if (Time.time < nextFireTime) //Check if ready to fire.
-        {
-            return false; // Not ready to fire yet.
-        }
-        else
-        {
-            nextFireTime = Time.time + fireDelayTime;       // Schedule next fire time.
-            shootFiringAudioSource.Play();                  // Play firing sound.
-            shootReloadAudioSource.PlayDelayed(0.3f);       // Play reload sound with 1 second delay.
-            return true;
-        }  // Fire projectile.
-
-
-    }
-    // End of my Functions.==============================
-
 
     // Update is called once per frame
     void Update()
@@ -135,4 +71,55 @@ public class Turret_Movement : MonoBehaviour
             }
 }
     }
+
+        // Start of my Functions.==============================
+    bool canIshoot()
+    {
+        if (shellSpawnPoint == null) 
+        {   
+            Debug.LogError("Shell Spawn Point is missing! Cannot shoot.");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;   // If running in the Unity Editor.
+            #endif
+            return false;
+        }
+
+        if (Time.time < nextFireTime) //Check if ready to fire.
+        {
+            return false; // Not ready to fire yet.
+        }
+        else
+        {
+            nextFireTime = Time.time + fireDelayTime;       // Schedule next fire time.
+            /*
+            shootFiringAudioSource.Play();                  // Play firing sound.
+            shootReloadAudioSource.PlayDelayed(0.3f);       // Play reload sound with 1 second delay.
+            return true;
+            */
+            if (shootAudioSource != null && shotFiringClip != null)
+            {
+                shootAudioSource.PlayOneShot(shotFiringClip);   // Play firing sound.
+            }
+
+            // Προγραμματισμός ήχου reload
+            if (shootAudioSource != null && shotReloadClip != null)
+            {
+                StartCoroutine(PlayReloadSoundWithDelay(0.3f)); // Play reload sound with 0.3 second's delay.
+            }
+            return true;
+        }
+    }
+
+    private IEnumerator PlayReloadSoundWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (shootAudioSource != null && shotReloadClip != null)
+        {
+            shootAudioSource.PlayOneShot(shotReloadClip);
+        }
+    }
+    
+    // End of my Functions.==============================
 }
+
+

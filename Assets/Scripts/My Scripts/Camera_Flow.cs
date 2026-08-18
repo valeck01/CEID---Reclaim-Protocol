@@ -22,8 +22,5 @@ public class Camera_Flow : MonoBehaviour
         // Smoothly rotate to match the target's rotation.
         Quaternion targetRotation = target.rotation;
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, smoothRotation * Time.deltaTime);
-
-
-
     }
 }
