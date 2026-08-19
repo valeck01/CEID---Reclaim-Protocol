@@ -94,9 +94,8 @@ MonoBehaviour:
   shell_transform: {fileID: 0}
   shell_rigidbody: {fileID: 0}
   shell_capsuleCollider: {fileID: 0}
-  getDamageMultiplier: 0
+  getDamageMultiplier: 1
   lifeTime: 10
-  explosionPrefab: {fileID: 195792, guid: 89e78efe92dfe5a42837b392cdb0bf9e, type: 3}
 --- !u!54 &7124629442225113632
 Rigidbody:
   m_ObjectHideFlags: 0

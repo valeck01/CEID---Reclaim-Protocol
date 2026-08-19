@@ -12,9 +12,6 @@ public class Shell_Behavior : MonoBehaviour
     public float lifeTime = 10f;                // Lifetime of the shell in case it does not collide with anything.
     private Collider currentShooterCollider;    // Variable to remember who is shooting the shell.
 
-    [Header("Explosion Settings")]
-    [SerializeField] private GameObject explosionPrefab;    // ShellExplosion Prefab (Visual Effects + Audio)
-
     void Awake()
     {
         
@@ -51,24 +48,32 @@ public class Shell_Behavior : MonoBehaviour
         }
 
         // Create prefab for VFX + ExplosionSound.
-        if (explosionPrefab != null)
+        if (ObjectPooler.Instance != null)
         {
-            // Show explosion VFX.
-            GameObject explosionInstance = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            ParticleSystem[] particleSystems = explosionInstance.GetComponentsInChildren<ParticleSystem>();
-            foreach (ParticleSystem ps in particleSystems)
+            GameObject explosionInstance = ObjectPooler.Instance.GetPooledExplosion();
+            if (explosionInstance != null)
             {
-                ps.Play();
-            }
+                // Set Position and activate it
+                explosionInstance.transform.position = transform.position;
+                explosionInstance.transform.rotation = Quaternion.identity;
+                explosionInstance.SetActive(true);
 
-            // Play Explosion Sound.
-            AudioSource explosionAudio = explosionInstance.GetComponent<AudioSource>();
-            if (explosionAudio != null)
-            {
-                explosionAudio.Play();
-            }
+                // Play Particles
+                ParticleSystem mainPS = explosionInstance.GetComponent<ParticleSystem>();
+                if (mainPS != null)
+                {
+                    mainPS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    mainPS.Play(true);
+                }
 
-            Destroy(explosionInstance, 2f); 
+                // Play Explosion Sound
+                AudioSource explosionAudio = explosionInstance.GetComponent<AudioSource>();
+                if (explosionAudio != null)
+                {
+                    explosionAudio.Stop();
+                    explosionAudio.Play();
+                }
+            }
         }
 
         CancelInvoke("DeactivateShell"); // Cancel the automatic deactivation.

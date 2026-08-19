@@ -278,7 +278,7 @@ public class AI_Behavior : MonoBehaviour
             if (cornersCount == 0) 
             {
                 Debug.LogWarning("Found an anaccessible Patrol Location.");
-                currentPatrolIndex++;
+                currentPatrolIndex = UnityEngine.Random.Range(0, patrolLocations.Length);
                 if (currentPatrolIndex >= patrolLocations.Length) currentPatrolIndex = 0;
                 return; 
             }
@@ -290,13 +290,18 @@ public class AI_Behavior : MonoBehaviour
         // Patrol Logic.
         if (currentCornerIndex >= cornersCount)                 // Check if NPC arrived to the Patrol Location.
         {
-            currentPatrolIndex++;                               // Select next Patrol Location
-            if (currentPatrolIndex >= patrolLocations.Length)   // If all Patrol Locations checked.
+            if (patrolLocations.Length > 1)                     // Ensure there are at least 2 points to choose from.
             {
-                currentPatrolIndex = 0;                         // Reset Patrol.
+                int nextIndex;
+                do
+                {
+                    nextIndex = UnityEngine.Random.Range(0, patrolLocations.Length);    // Pick a random index.
+                } 
+                while (nextIndex == currentPatrolIndex);                    // Repeat if it picked the same point we are already at.
+                
+                currentPatrolIndex = nextIndex;                             // Apply the new random index.
             }
-
-            cornersCount = 0;                                   // Reset cornersCount to force calculation of new path.
+            cornersCount = 0;                                               // Reset cornersCount to force calculation of new path.
         }
     }
 
