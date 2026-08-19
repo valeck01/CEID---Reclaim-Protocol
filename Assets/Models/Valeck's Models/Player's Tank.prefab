@@ -131,9 +131,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 967578518181579227}
   serializedVersion: 4
-  m_Mass: 1000
-  m_Drag: 2
-  m_AngularDrag: 2
+  m_Mass: 1500
+  m_Drag: 5
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -302,9 +302,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f681cbe6dd3a7a419a573d91f1fc55b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Max_Tank_Speed: 10
-  Max_Turn_Speed: 25
-  speed_Smoothness: 0.5
+  Max_Tank_Speed: 15
+  Max_Turn_Speed: 45
+  speed_Smoothness: 0.1
   audioSource: {fileID: 8202962158958351529}
   engineIdleClip: {fileID: 8300000, guid: 4932ab25b84dd7649b80af68a9660ddc, type: 3}
   engineDrivingClip: {fileID: 8300000, guid: d7ca9fb5aa30155449192b23d7fb3336, type: 3}
@@ -572,12 +572,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1ea483f27683e344b34e6320ab1b371, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shellSpawnPoint: {fileID: 0}
-  shellSize: 0
-  shellSpeed: 0
-  fireDelayTime: 0
+  shellSpawnPoint: {fileID: 7356507845329477845}
+  shellSpeed: 100
+  fireDelayTime: 2
   nextFireTime: 0
-  damageMultiplier: 0
+  damageMultiplier: 1
   shootAudioSource: {fileID: 0}
   shotFiringClip: {fileID: 0}
   shotReloadClip: {fileID: 0}

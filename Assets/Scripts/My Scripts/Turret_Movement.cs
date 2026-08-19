@@ -10,7 +10,6 @@ public class Turret_Movement : MonoBehaviour
 
     [Header("Tank Shooting Parameters")]
     public Transform shellSpawnPoint;       // Where the shell is spawned from.
-    public float shellSize;                 // Volume of the fired shell
     public float shellSpeed;                // speed of the fired shell (units/sec).
     public float fireDelayTime;             // Fire delay (seconds between shots).
     public float nextFireTime;              // Time when the AI can fire next.
@@ -41,19 +40,25 @@ public class Turret_Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float rotate_pressed = Input.GetAxis("Horizontal2");
-        transform.Rotate(Vector3.up, rotate_pressed * rotate_speed * Time.deltaTime);
 
-        
         if (Input.GetButtonDown("Fire1") && canIshoot())                                // Check if can shoot.
         {
             GameObject projectile = ObjectPooler.Instance.GetPooledObject();            // Get an shell from the pool.
             if (projectile != null)                                                     // Check if an shell is found.
             {
+                nextFireTime = Time.time + fireDelayTime;                               // Schedule shooting delay end.
+                if (shootAudioSource != null && shotFiringClip != null)                 
+                {
+                    shootAudioSource.PlayOneShot(shotFiringClip);                       // Play firing sound.
+                }
+                if (shootAudioSource != null && shotReloadClip != null)
+                {
+                    StartCoroutine(PlayReloadSoundWithDelay(0.3f));                     // Play reload sound.
+                }
+
                 // Set correct parameters for the shell
                 projectile.transform.position = shellSpawnPoint.position;               // Set shell's position.
                 projectile.transform.rotation = shellSpawnPoint.rotation;               // Set shell's rotation.
-                projectile.transform.localScale = Vector3.one * shellSize;              // Set shell's scale.
                 projectile.SetActive(true);                                             // Activate the shell.
 
                 if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
@@ -64,13 +69,27 @@ public class Turret_Movement : MonoBehaviour
 
                 if (projectile.TryGetComponent<Rigidbody>(out Rigidbody projectileRb))
                 {
-                    projectileRb.velocity = Vector3.zero;                                                   // Reset velocity.
+                    projectileRb.velocity = tank_capsuleCollider.attachedRigidbody.velocity;                // Find tanks velocity.
                     projectileRb.angularVelocity = Vector3.zero;                                            // Reset angular velocity.
                     projectileRb.AddForce(shellSpawnPoint.forward * shellSpeed, ForceMode.VelocityChange);  // Add force to shell.
                 }
             }
+            else
+            {
+                Debug.LogError("Turret_Movement.cs did not found projectile prefab.");
+                #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+                #endif
+            }
 }
     }
+
+    void LateUpdate()
+    {
+        float rotate_pressed = Input.GetAxis("Horizontal2");
+        transform.Rotate(Vector3.up, rotate_pressed * rotate_speed * Time.deltaTime);
+    }
+
 
         // Start of my Functions.==============================
     bool canIshoot()
@@ -90,22 +109,6 @@ public class Turret_Movement : MonoBehaviour
         }
         else
         {
-            nextFireTime = Time.time + fireDelayTime;       // Schedule next fire time.
-            /*
-            shootFiringAudioSource.Play();                  // Play firing sound.
-            shootReloadAudioSource.PlayDelayed(0.3f);       // Play reload sound with 1 second delay.
-            return true;
-            */
-            if (shootAudioSource != null && shotFiringClip != null)
-            {
-                shootAudioSource.PlayOneShot(shotFiringClip);   // Play firing sound.
-            }
-
-            // Προγραμματισμός ήχου reload
-            if (shootAudioSource != null && shotReloadClip != null)
-            {
-                StartCoroutine(PlayReloadSoundWithDelay(0.3f)); // Play reload sound with 0.3 second's delay.
-            }
             return true;
         }
     }

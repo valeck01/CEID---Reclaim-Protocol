@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1548522323588584167}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2857125535316178736}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: ShotFiringAudio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -80,6 +80,10 @@ PrefabInstance:
       value: Enemy's Tank
       objectReference: {fileID: 0}
     - target: {fileID: 100112, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 100112, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -87,9 +91,29 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Enemy_Player
       objectReference: {fileID: 0}
+    - target: {fileID: 100114, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 100116, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 100118, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 100120, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 100120, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
       propertyPath: m_TagString
       value: Enemy_Player_Turret
+      objectReference: {fileID: 0}
+    - target: {fileID: 100124, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 400112, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
       propertyPath: m_LocalScale.x
@@ -246,9 +270,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 195852440433941579}
   serializedVersion: 4
-  m_Mass: 1000
-  m_Drag: 10
-  m_AngularDrag: 2
+  m_Mass: 1500
+  m_Drag: 5
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -517,18 +541,17 @@ MonoBehaviour:
   patrolLocations: []
   currentPatrolIndex: 0
   currentState: 0
-  speed: 10
-  turnSpeed: 2
+  speed: 15
+  turnSpeed: 100
   detectionRange: 150
   detectionAngle: 90
-  stopAtDistanceMin: 50
-  stopAtDistanceMax: 60
+  stopAtDistance: 30
   rayheightOffset: 1
   shellSpeed: 100
   fireDelayTime: 2
   angleToShoot: 45
   damageMultiplier: 1
-  velocityLerp: 0.5
+  velocityLerp: 0.1
   engineAudioSource: {fileID: 4347162039133729108}
   engineIdleClip: {fileID: 8300000, guid: 4932ab25b84dd7649b80af68a9660ddc, type: 3}
   engineDrivingClip: {fileID: 8300000, guid: d7ca9fb5aa30155449192b23d7fb3336, type: 3}

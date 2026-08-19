@@ -35,13 +35,11 @@ public class AI_Behavior : MonoBehaviour
     public float turnSpeed;                 // Degrees/sec rotation speed.
     public float detectionRange;            // How far the AI can see the player.
     public float detectionAngle;                // FOV angle for detection.
-    public float stopAtDistanceMin;         // how close to stop from player.
-    public float stopAtDistanceMax;         // How far to be stoped from player.
+    public float stopAtDistance;         // how close to stop from player.
     public float rayheightOffset;           // height offset for raycasting to detect player.
 
     [Header("Tank Shooting Parameters")]
     private Transform shellSpawnPoint;       // Where the shell is spawned from.
-    private float shellSize;                // Size of the fired shell.
     public float shellSpeed;                // speed of the fired shell (units/sec).
     public float fireDelayTime;             // Fire delay (seconds between shots).
     private float nextFireTime;             // Time when the AI can fire next.
@@ -64,13 +62,11 @@ public class AI_Behavior : MonoBehaviour
         // Initialize navMesh Settings.
         path = new NavMeshPath();
         npc_agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-        if (npc_agent != null)
-        {
-            // Dont let navMeshAgent to move NPC
-            npc_agent.updatePosition = false;
-            npc_agent.updateRotation = false;
-        }
-        else
+        
+        // Dont let navMeshAgent to move NPC
+        npc_agent.updatePosition = false;
+        npc_agent.updateRotation = false;
+        if (npc_agent == null)
         {
             Debug.LogError("navMeshAgent component is not applyed to npc: " + npc_GameObject.name);
             #if UNITY_EDITOR
@@ -138,9 +134,7 @@ public class AI_Behavior : MonoBehaviour
                 UnityEditor.EditorApplication.isPlaying = false;                // If running in the Unity Editor.
             #endif
         }
-        shellSize = 5f;                                                         // Initialize shells Size.
         
-
         
         // Initialize patrolling Locations.
         if (patrolLocations == null || patrolLocations.Length == 0)             // Check if Inspector assigned atleast one patrol location.
@@ -248,7 +242,7 @@ public class AI_Behavior : MonoBehaviour
             shootWhenReady();
         }
 
-        if (distanceToPlayer <= stopAtDistanceMin && distanceToPlayer > stopAtDistanceMax)
+        if (distanceToPlayer <= stopAtDistance)
         {
             cornersCount = 0;   // Force tank to stop moving.
 
@@ -394,6 +388,8 @@ public class AI_Behavior : MonoBehaviour
 
     void calculatePath(Vector3 targetPosition)
     {
+        npc_agent.Warp(npc_GameObject.transform.position);      // Set agents location on Npc's tank location. (because CalcPath calculates the path from agent and not from npc's tank possition)
+
         npc_agent.CalculatePath(targetPosition, path);          // Calculate the path to targetPosition.
         cornersCount = path.GetCornersNonAlloc(pathCorners);    // (Zero Allocation) update the Vector3 List with new calculated path and return the # of valid corners.
         currentCornerIndex = 0;                                 // Reset corner target with first calculated corner.
@@ -422,7 +418,6 @@ public class AI_Behavior : MonoBehaviour
                 // Set correct parameters for the shell
                 projectile.transform.position = shellSpawnPoint.position;               // Set shell's position.
                 projectile.transform.rotation = shellSpawnPoint.rotation;               // Set shell's rotation.
-                projectile.transform.localScale = Vector3.one * shellSize;              // Set shell's scale.
                 projectile.SetActive(true);                                             // Activate the shell.
 
                 if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
@@ -433,7 +428,7 @@ public class AI_Behavior : MonoBehaviour
 
                 if (projectile.TryGetComponent<Rigidbody>(out Rigidbody projectileRb))
                 {
-                    projectileRb.velocity = Vector3.zero;                                                   // Reset velocity.
+                    projectileRb.velocity = npc_rb.velocity;                                                // Find tanks velocity.
                     projectileRb.angularVelocity = Vector3.zero;                                            // Reset angular velocity.
                     projectileRb.AddForce(shellSpawnPoint.forward * shellSpeed, ForceMode.VelocityChange);  // Add force to shell.
                 }
