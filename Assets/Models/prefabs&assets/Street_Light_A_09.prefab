@@ -210,11 +210,11 @@ Light:
   m_GameObject: {fileID: 6438419985452181224}
   m_Enabled: 1
   serializedVersion: 10
-  m_Type: 0
+  m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 0.9495443, b: 0.7688679, a: 1}
-  m_Intensity: 2.55
-  m_Range: 4.95
+  m_Intensity: 500
+  m_Range: 30
   m_SpotAngle: 33.7
   m_InnerSpotAngle: 1
   m_CookieSize: 10
@@ -328,11 +328,11 @@ Light:
   m_GameObject: {fileID: 8523191133902988766}
   m_Enabled: 1
   serializedVersion: 10
-  m_Type: 0
+  m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 0.9495443, b: 0.7688679, a: 1}
-  m_Intensity: 2.55
-  m_Range: 4.95
+  m_Intensity: 500
+  m_Range: 30
   m_SpotAngle: 33.7
   m_InnerSpotAngle: 1
   m_CookieSize: 10

@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 417260}
+  - component: {fileID: 5839697356031747578}
   m_Layer: 0
   m_Name: junk_bridge
   m_TagString: Untagged
@@ -33,6 +34,27 @@ Transform:
   - {fileID: 406850}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &5839697356031747578
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 192894}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.3348389, y: 0.34428084, z: 1.1051137}
+  m_Center: {x: 0.21943277, y: -0.32785958, z: -0.22002864}
 --- !u!1 &197046
 GameObject:
   m_ObjectHideFlags: 0

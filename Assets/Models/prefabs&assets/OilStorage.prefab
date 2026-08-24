@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8236716061596313775}
   - component: {fileID: 127463311011090552}
   - component: {fileID: 4139798103646369120}
+  - component: {fileID: 1568032954511787562}
   m_Layer: 0
   m_Name: OilStorage
   m_TagString: Untagged
@@ -126,7 +127,28 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.7755119
-  m_Height: 3.5510237
+  m_Radius: 1.756907
+  m_Height: 3.7909188
   m_Direction: 1
-  m_Center: {x: 0, y: 1.0661073, z: -0.3452822}
+  m_Center: {x: -0.14788185, y: 0.8669617, z: -0.21600434}
+--- !u!65 &1568032954511787562
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8346587877104003793}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 2.8604622, y: 2.1374657, z: 2.8170056}
+  m_Center: {x: 0, y: 1.0661072, z: -0.00000029802322}

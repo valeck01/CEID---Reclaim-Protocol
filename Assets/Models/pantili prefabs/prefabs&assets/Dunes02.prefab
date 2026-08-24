@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8032057053887887381}
   - component: {fileID: 8021261301793344174}
   - component: {fileID: 2023346815571063922}
+  - component: {fileID: -1223026892270942131}
   m_Layer: 0
   m_Name: Dunes02
   m_TagString: Untagged
@@ -101,7 +102,30 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 20.444782, y: 0.18147935, z: 6.8774447}
   m_Center: {x: -2.0939078, y: 0.090739675, z: -0.3938377}
+--- !u!136 &-1223026892270942131
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7520884844259091674}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 10.222391
+  m_Height: 0.18147935
+  m_Direction: 1
+  m_Center: {x: -2.0939078, y: 0.090739675, z: -0.3938682}
