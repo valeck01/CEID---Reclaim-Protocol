@@ -8,8 +8,10 @@ public class Health_System : MonoBehaviour
     public float currentHealth;
     private bool  isDead;
     
+    [Header("XP System")]
+    public float xpReward = 30f;
+
     [Header("Effects")]
-    public float damageAmmount = 10f;
     public GameObject explosionPrefab;
     public GameObject bustedTankPrefab;
     public float bustedTankDestroyTime = 300f;
@@ -46,14 +48,12 @@ public class Health_System : MonoBehaviour
         isDead = false;    
     }
 
-    public void TakeDamage(float damageMultiplier)
+    public void TakeDamage(float incommingDamage)
     {
         if (isDead) return; // Already dead, no further damage.
 
-        float damageDealt = damageAmmount * damageMultiplier;   // Calculate damage dealt.
-
-        currentHealth -= damageDealt;                           // Reduce current health.
-        Debug.Log($"{gameObject.name} took {damageDealt} damage! Current HP: {currentHealth}");
+        currentHealth -= incommingDamage;                           // Reduce current health.
+        Debug.Log($"{gameObject.name} got {incommingDamage} damage! Current HP: {currentHealth}");
         // Here comes Ui for health bar update in future.---------------------------------------------------------------------------------------------------------
 
         if (currentHealth <= 0f && !isDead)
@@ -77,6 +77,12 @@ public class Health_System : MonoBehaviour
         else if(gameObject.CompareTag("Enemy_Player"))
         {                        
             Debug.Log("Enemy Tank destroyed!");
+
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null && player.TryGetComponent<PlayerInventory>(out PlayerInventory pInv))
+            {
+                pInv.AddXP(xpReward);
+            }
         }
 
         // Play explosion sound effect.

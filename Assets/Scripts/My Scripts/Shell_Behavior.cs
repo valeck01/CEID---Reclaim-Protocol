@@ -8,7 +8,7 @@ public class Shell_Behavior : MonoBehaviour
     public CapsuleCollider shell_capsuleCollider;
 
     [Header("Shell Parameters")]
-    public float getDamageMultiplier;           // Damage multiplier for this shell.
+    public float shellDamage;                   
     public float lifeTime = 10f;                // Lifetime of the shell in case it does not collide with anything.
     private Collider currentShooterCollider;    // Variable to remember who is shooting the shell.
 
@@ -44,7 +44,7 @@ public class Shell_Behavior : MonoBehaviour
         // Apply damage if hit a tank.
         if (collision.gameObject.TryGetComponent<Health_System>(out Health_System targetHealth))
         {
-            targetHealth.TakeDamage(getDamageMultiplier);
+            targetHealth.TakeDamage(shellDamage);
         }
 
         // Create prefab for VFX + ExplosionSound.
