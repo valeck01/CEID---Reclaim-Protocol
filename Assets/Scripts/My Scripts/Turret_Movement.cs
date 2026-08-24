@@ -13,7 +13,7 @@ public class Turret_Movement : MonoBehaviour
     public float shellSpeed;                // speed of the fired shell (units/sec).
     public float fireDelayTime;             // Fire delay (seconds between shots).
     public float nextFireTime;              // Time when the AI can fire next.
-    public float damageMultiplier;          // Damage multiplier for projectiles.
+    public float tankDamage;                // Player's shell damage.
 
     [Header("Audio Components")]
     [SerializeField] private AudioSource shootAudioSource;
@@ -63,7 +63,7 @@ public class Turret_Movement : MonoBehaviour
 
                 if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
                 {
-                    shellBehavior.getDamageMultiplier = damageMultiplier;               // Set the damage multiplier.
+                    shellBehavior.shellDamage = tankDamage;                             // Set the shell's Damage.
                     shellBehavior.SetShooter(tank_capsuleCollider);
                 }
 

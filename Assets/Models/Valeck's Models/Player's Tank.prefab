@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 7440406091409615862}
   - component: {fileID: 8202962158958351529}
   - component: {fileID: 6544847717945580158}
+  - component: {fileID: 1033935352322049772}
   m_Layer: 0
   m_Name: Player's Tank
   m_TagString: Player
@@ -188,7 +189,7 @@ MonoBehaviour:
   Max_Health: 300
   Starting_Health: 150
   currentHealth: 150
-  damageAmmount: 10
+  xpReward: 30
   explosionPrefab: {fileID: 151086, guid: ee49a9a8678ecf8468eb488e1ac8d42b, type: 3}
   bustedTankPrefab: {fileID: 8645589114086521471, guid: 0f4613a0ece11d64aa0a37faf1f23c15,
     type: 3}
@@ -309,6 +310,35 @@ MonoBehaviour:
   engineIdleClip: {fileID: 8300000, guid: 4932ab25b84dd7649b80af68a9660ddc, type: 3}
   engineDrivingClip: {fileID: 8300000, guid: d7ca9fb5aa30155449192b23d7fb3336, type: 3}
   pitchRange: 0.2
+--- !u!114 &1033935352322049772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967578518181579227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1079bff8fd8e53544b25d126f431a878, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  repairAmount: 30
+  speedBuffAmount: 20
+  speedBuffDuration: 5
+  reloadBuffAmount: 1
+  reloadBuffDuration: 5
+  currentLevel: 0
+  currentXP: 0
+  nextLevelXP: 100
+  xpIncreasePerLevel: 50
+  availableUpgradePoints: 0
+  maxLevel: 10
+  maxUpgradesPerStat: 5
+  hpBonusPerUpgrade: 30
+  damageBonusPerUpgrade: 15
+  turretSpeedBonusPerUpgrade: 5
+  pickupAudioSource: {fileID: 8202962158958351529}
+  pickupAndActivationClip: {fileID: 0}
 --- !u!1 &1183445729009927059
 GameObject:
   m_ObjectHideFlags: 0
@@ -576,10 +606,10 @@ MonoBehaviour:
   shellSpeed: 100
   fireDelayTime: 2
   nextFireTime: 0
-  damageMultiplier: 1
-  shootAudioSource: {fileID: 0}
-  shotFiringClip: {fileID: 0}
-  shotReloadClip: {fileID: 0}
+  tankDamage: 0
+  shootAudioSource: {fileID: 6208156605552016201}
+  shotFiringClip: {fileID: 8300000, guid: 672a9941361ad494a99fba36759eca80, type: 3}
+  shotReloadClip: {fileID: 8300000, guid: c17f124fcdc0f5446a72f793898bd74b, type: 3}
   rotate_speed: 50
 --- !u!82 &6208156605552016201
 AudioSource:
@@ -602,8 +632,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 0
-  MaxDistance: 10
+  MinDistance: 20
+  MaxDistance: 500
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0

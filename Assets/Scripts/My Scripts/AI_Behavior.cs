@@ -34,17 +34,17 @@ public class AI_Behavior : MonoBehaviour
     public float speed;                     // Max forward speed (units/sec).
     public float turnSpeed;                 // Degrees/sec rotation speed.
     public float detectionRange;            // How far the AI can see the player.
-    public float detectionAngle;                // FOV angle for detection.
-    public float stopAtDistance;         // how close to stop from player.
-    public float rayheightOffset;           // height offset for raycasting to detect player.
+    public float detectionAngle;            // FOV angle for detection.
+    public float stopAtDistance;            // how close to stop from player.
+    public float rayheightOffset;           // Height offset for raycasting to detect player.
 
     [Header("Tank Shooting Parameters")]
-    private Transform shellSpawnPoint;       // Where the shell is spawned from.
-    public float shellSpeed;                // speed of the fired shell (units/sec).
+    private Transform shellSpawnPoint;      // Where the shell is spawned from.
+    public float shellSpeed;                // Speed of the fired shell (units/sec).
     public float fireDelayTime;             // Fire delay (seconds between shots).
     private float nextFireTime;             // Time when the AI can fire next.
     public float angleToShoot;              // Angle withing player must be to shoot.
-    public float damageMultiplier;          // Damage multiplier for projectiles.
+    public float tankDamage;                // Damage for projectiles.
 
     [Range(0f, 1f)] public float velocityLerp = 0.1f; // smoothing for velocity changes
     
@@ -427,7 +427,7 @@ public class AI_Behavior : MonoBehaviour
 
                 if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
                 {
-                    shellBehavior.getDamageMultiplier = damageMultiplier;               // Set the damage multiplier.
+                    shellBehavior.shellDamage = tankDamage;                             // Set the shell's damage.
                     shellBehavior.SetShooter(npc_capsuleCollider);                      // Let shellBehavior to know who is shooting.
                 }
 
