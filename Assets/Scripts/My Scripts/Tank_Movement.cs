@@ -1,121 +1,190 @@
 using System;
 using UnityEngine;
 
-public class Tank_Movement : MonoBehaviour
+public class New_Tank_Movement : MonoBehaviour
 {
     private float axisX;
     private float axisZ;
 
-    [Header("Tank Parameters")]
+    [Header("Movement Parameters")]                      // Show in the Inspector.
     public float Max_Tank_Speed;
-    [Range(0f, 1f)]public float speed_Difference;
     public float Max_Turn_Speed;
+    [Range(0f, 1f)] public float speed_Smoothness;
+    public bool isEngineOn = true;                      // Turn On/Off the engine via keyboard Button.
 
-    [Header("Components")]
-    private Rigidbody rb;
+    /*
+    [Header("Spawn Settings")]
+    public Vector3 initialPosition;                             // Let Inspector to set the starting Position of the tank.
+    public Vector3 initialRotation;                             // Let Inspector to set the starting Rotation of the tank.
+    */
+
+    [Header("Engine Audio")]                                    
+    [SerializeField] private AudioSource audioSource;           // Engine's Audio Source.
+    [SerializeField] private AudioClip engineIdleClip;          // Let Inspector to set the EngineIdle clip.
+    [SerializeField] private AudioClip engineDrivingClip;       // EngineDriving clip.
+    public float pitchRange = 0.2f;                             // Pitch Range.
+    private float originalPitch;                                // Original pitch of the AudioSource.
+
+    private Rigidbody rb;                   
     private CapsuleCollider capsuleCollider;
 
-    [Header("Audio Components")]
-    private AudioSource audioSource;
-    
     void Start()
-    {   
-        // Initialize Audio Source.
-        audioSource = GetComponent<AudioSource>();
-        audioSource.clip = Resources.Load<AudioClip>("AudioClips/EngineDriving");   // Load Engine Driving sound.
+    {
+        // Get all components by reference.
+        rb = GetComponent<Rigidbody>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
 
-        //Check if Audio Source is assigned correctly.
-        if (audioSource == null)
+        //Check if Rigidbody is assigned correctly.
+        if (rb == null)
         {
-            Debug.LogError("Audio Source for tank engine is not assigned properly!");
+            Debug.LogError("Rigidbody for tank is not assigned!");
             #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
             #endif
         }
 
-        audioSource.volume = 0.2f;                                                  // Adjust volume as needed.
-        audioSource.loop = true;                                                    // Loop the engine sound.
-        audioSource.playOnAwake = true;                                             // Play on awake.
-        audioSource.spatialBlend = 1f;                                              // 3D sound.
-        audioSource.pitch = 1f;                                                     // Normal pitch.
-        audioSource.rolloffMode = AudioRolloffMode.Linear;                          // Linear volume rolloff.
-        audioSource.maxDistance = 100f;                                             // Max distance for sound audibility.
-        audioSource.minDistance = 1f;                                               // Min distance for sound audibility.
-        
-        
-        // Initialize Vehicle's Rigidbody.
-        rb = GetComponent<Rigidbody>();
-        /*
-        rb.mass = 1000f;
-        rb.drag = 0f;
-        rb.angularDrag = 0f;
-        */
+        // Lock some parameters to ensure that the object can not pass throu other objects.
         rb.isKinematic = false;
         rb.useGravity = false;
-        rb.constraints = 
-        (
-            RigidbodyConstraints.FreezeRotationX |
-            RigidbodyConstraints.FreezeRotationZ |
-            RigidbodyConstraints.FreezePositionY
-        );
+
+        // Lock the object because we move in 2D dimension.
+        rb.constraints = RigidbodyConstraints.FreezeRotationX |     //Lock the X rotation of the tank.
+                         RigidbodyConstraints.FreezeRotationZ |     //Lock the Z rotation of the tank.
+                         RigidbodyConstraints.FreezePositionY;      //Lock the Y position of the tank.
         
-        /*
-        // Initialize Vehicle Parameters.
-        Max_Tank_Speed      = 100f;      // max forward speed (units/sec).
-        speed_Difference    = 0.1f;      // smoothing for velocity changes
-        Max_Turn_Speed      = 60f;       // degrees/sec rotation speed.
-        */
+        capsuleCollider.enabled = true;
+        capsuleCollider.isTrigger = false;
+        capsuleCollider.center = new Vector3(0.0f, 1.60f, -0.1f);
+        capsuleCollider.radius = 1.1f;
+        capsuleCollider.height = 3.15f;
+        capsuleCollider.direction = 2;
 
-        // Initialize Vehicle's CapsuleCollider.
-        capsuleCollider = GetComponent<CapsuleCollider>();
-        capsuleCollider.enabled     = true;
-        capsuleCollider.isTrigger   = false;
-        capsuleCollider.center      = new Vector3(0f, 1.60f, -0.1f);
-        capsuleCollider.radius      = 1.10f;
-        capsuleCollider.height      = 3.15f;
-        capsuleCollider.direction   = 2; // Z-axis
+        //Check if Capsule Collider is assigned correctly.
+        if (capsuleCollider == null)
+        {
+            Debug.LogError("Capsule Collider for tank is not assigned!");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #endif
+        }
 
-        // Initialize Start Location & Rotation.
-        transform.position = new Vector3(-165f, 0f, -180f);
-        transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        //Check if Audio Source is assigned correctly.
+        if (audioSource == null)
+        {
+            Debug.LogError("Audio Source for tank engine is not assigned!");
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;    // If running in the Unity Editor.
+            #endif
+        }
+
+        // Start the engine sound and set it to loop.
+        originalPitch = audioSource.pitch;                          // Apply Inspectors initial Pitch.
+        audioSource.clip = engineIdleClip;                          // Set the engineIdle sound to the one set in the Inspector.
+        audioSource.loop = true;                                    // Set the engineIdle sound to loop.
+        audioSource.Play();                                         // Play the engineIdle sound.
+
     }
-    
+
     void Update()
     {
-        axisX = Input.GetAxis("Horizontal1"); // Turning Left/Right.
-        axisZ = Input.GetAxis("Vertical1");   // Forward/Backward Movement.
+        axisX = Input.GetAxis("Horizontal1");   // Turning Left/Right.
+        axisZ = Input.GetAxis("Vertical1");     // Forward/Backward Movement.
 
         if (axisZ < 0)
         {
-            axisZ *= 0.5f;      // Apply half speed when going backwards.
-            axisX = -axisX;     // Reverse horizontal axis when going backwards.
+            axisZ *= 0.5f;                      // Apply half speed when going backwards.
+            axisX = -axisX;                     // Reverse horizontal axis when going backwards.
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            isEngineOn = !isEngineOn;           // Turn On/Off tank's engine.
+        }
+
+        if (!isEngineOn)                        // Turn off movement imput if engine is off
+        {
+            axisX = 0f;                         
+            axisZ = 0f;                         
         }
     }
     void FixedUpdate()
     {
         // Move tank forward/backward.
         Vector3 desiredVelocity = axisZ * Max_Tank_Speed * transform.forward;
-        rb.velocity = Vector3.Lerp(rb.velocity, desiredVelocity, speed_Difference);
+        rb.velocity = Vector3.Lerp(rb.velocity, desiredVelocity, speed_Smoothness);
 
         // Turn tank left/right.
         Vector3 desiredTurnVelocity = axisX * Max_Turn_Speed * Vector3.up;
         Quaternion turnRotation = Quaternion.Euler(desiredTurnVelocity * Time.fixedDeltaTime);
         rb.MoveRotation(rb.rotation * turnRotation);
 
-        // Handle engine sound based on movement.
-        float desiredAudioVolume = MathF.Max(Mathf.Abs(axisZ), Mathf.Abs(axisX)) / 2f;              // Volume based on movement input.
-        audioSource.volume = Mathf.Lerp(audioSource.volume, desiredAudioVolume, speed_Difference);  // Volume based on forward/backward input.
-
         
+        EngineAudio(); // Let EngineAudio function to handle the sound when tank is mooving.
+
         /*
         // Handle engine sound based on movement.
-        if (Mathf.Abs(axisZ) > 0.05f || Mathf.Abs(axisX) > 0.05f)
-        {
-            float desiredAudioVolume = MathF.Max(Mathf.Abs(axisZ), Mathf.Abs(axisX));                   // Volume based on movement input.
-            audioSource.volume = Mathf.Lerp(audioSource.volume, desiredAudioVolume, speed_Difference);  // Volume based on forward/backward input.
-        }
-        else audioSource.volume = 0f;                                                                   // Volume based on forward/backward input.
+        float desiredAudioVolume = MathF.Max(Mathf.Abs(axisZ), Mathf.Abs(axisX)) / 2f;              // Volume based on movement input.
+        audioSource.volume = Mathf.Lerp(audioSource.volume, desiredAudioVolume, speed_Smoothness);  // Volume based on forward/backward input.
         */
-        
     }
+
+    // Start of my Functions.============================
+    private void EngineAudio()
+    {
+        bool isMoving = Mathf.Abs(axisZ) > 0.1f || Mathf.Abs(axisX) > 0.1f;     // Check if tank is mooving.
+
+        // Change between Engine Idle and Engine Driving.
+        if (isMoving)                                                           // Tank is Mooving.
+        {
+            if (audioSource.clip == engineIdleClip)                               
+            {
+                audioSource.clip = engineDrivingClip;                           // Change to Driving Clip.
+                audioSource.Play();
+            }
+        }
+        else                                                                    // Tank does not Mooving.
+        {
+            if (audioSource.clip == engineDrivingClip)
+            {
+                audioSource.clip = engineIdleClip;                              // Change to Idle Clip.
+                audioSource.Play();
+            }
+        }
+
+        float movementMagnitude = Mathf.Max(Mathf.Abs(axisZ), Mathf.Abs(axisX));            // Calculate the audios volume based on speed.
+
+        float targetPitch = originalPitch + (movementMagnitude * pitchRange);               // Calculate target pitch for effect of speeding up.
+        audioSource.pitch = Mathf.Lerp(audioSource.pitch, targetPitch, speed_Smoothness);   // Set calculated pitch.
+
+        // Smooth changing the volume of the audio source.
+        float targetVolume;
+        if (!isEngineOn)
+        {
+             targetVolume = 0.0f;       // Turn off engine's volume if engine is off.
+        }
+        else if (isMoving)
+        {
+            targetVolume = 0.5f;        // If engine is on and tank is mooving play enginDriving.audio at 50% volume.
+        }
+        else
+        {
+            targetVolume = 0.2f;        // If engine is on and tank is not mooving, play engineIdle.audio at 20% volume.
+        }
+        
+        // Calculate and change the volume smoothly with lerp function.
+        audioSource.volume = Mathf.Lerp(audioSource.volume, targetVolume, speed_Smoothness);
+        if (audioSource.volume < 0.1f)
+        {
+            audioSource.enabled = false;
+        }
+        else
+        {
+            if (audioSource.enabled == false) 
+            {
+                audioSource.enabled = true; 
+                audioSource.Play();         
+            }
+        }
+    }
+    // End of my Functions.==============================
 }

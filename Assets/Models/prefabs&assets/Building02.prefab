@@ -71,11 +71,11 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 7fa610bf2b9bccd48a9b3a6d79f90a37,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8283495455961464097}
+      addedObject: {fileID: 2347175078244338382}
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 7fa610bf2b9bccd48a9b3a6d79f90a37,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2347175078244338382}
+      addedObject: {fileID: 5481969476699922830}
   m_SourcePrefab: {fileID: 100100000, guid: 7fa610bf2b9bccd48a9b3a6d79f90a37, type: 3}
 --- !u!1 &7592949449099112916 stripped
 GameObject:
@@ -83,28 +83,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 7592949449099147124}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &8283495455961464097
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7592949449099112916}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4300002, guid: 7fa610bf2b9bccd48a9b3a6d79f90a37, type: 3}
 --- !u!65 &2347175078244338382
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -124,5 +102,28 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 7.733751, y: 2.8366532, z: 5.224953}
-  m_Center: {x: -0.46942118, y: 1.3399479, z: -0.00003093067}
+  m_Size: {x: 6.99, y: 2.8366532, z: 3.99}
+  m_Center: {x: -0.59, y: 1.3399479, z: -0.49}
+--- !u!136 &5481969476699922830
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7592949449099112916}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: -0.54, y: 0, z: 1.57}

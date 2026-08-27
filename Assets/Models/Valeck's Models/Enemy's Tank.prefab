@@ -24,13 +24,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6898962772752156154}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.01745245, y: 0, z: 0, w: 0.99984777}
+  m_LocalRotation: {x: -0.021814799, y: 0, z: 0, w: 0.999762}
   m_LocalPosition: {x: -0, y: 1.565, z: 0.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 195852440433770923}
-  m_LocalEulerAnglesHint: {x: -2, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -2.5, y: 0, z: 0}
 --- !u!1 &9188412256550121692
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,13 +325,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Max_Health: 300
-  Starting_Health: 150
-  currentHealth: 150
-  damageAmmount: 10
+  Starting_Health: 100
+  currentHealth: 100
+  xpReward: 30
   explosionPrefab: {fileID: 151086, guid: ee49a9a8678ecf8468eb488e1ac8d42b, type: 3}
   bustedTankPrefab: {fileID: 8645589114086521471, guid: 0f4613a0ece11d64aa0a37faf1f23c15,
     type: 3}
-  bustedTankDestroyTime: 300
+  bustedTankDestroyTime: 10
+  inGameUIPanel: {fileID: 0}
+  deathPopupPanel: {fileID: 0}
+  deathPopupText: {fileID: 0}
+  defaultDeathMsg: You Died At Mission! (Game Over)
+  timeOutDeathMsg: You got destroyed by Nuclear Weapon! (Game Over) (Animation of
+    a Nuclear weapon is in progress)
+  KilledByTankMsg: Enemie Tank Killed you! (Game Over)
+  KilledByTurretMsg: Enemie Turret Killed you! (Game Over)
+  KilledInBossSectorMsg: Killed in Boss Sector. Next time prepare better! (Game Over)
 --- !u!82 &4347162039133729108
 AudioSource:
   m_ObjectHideFlags: 0
@@ -353,8 +362,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 50
+  MinDistance: 0.1
+  MaxDistance: 10
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -449,8 +458,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 20
-  MaxDistance: 100
+  MinDistance: 0.1
+  MaxDistance: 20
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -541,17 +550,19 @@ MonoBehaviour:
   patrolLocations: []
   currentPatrolIndex: 0
   currentState: 0
-  speed: 15
+  speed: 1.75
   turnSpeed: 100
-  detectionRange: 150
-  detectionAngle: 90
-  stopAtDistance: 30
-  rayheightOffset: 1
-  shellSpeed: 100
-  fireDelayTime: 2
-  angleToShoot: 45
-  damageMultiplier: 1
+  speedDropOnTurn: 0.5
   velocityLerp: 0.1
+  detectionRange: 7
+  detectionAngle: 90
+  stopAtDistance: 2
+  rayheightOffset: 0.2
+  shellSpeed: 30
+  fireDelayTime: 2
+  angleToShoot: 10
+  tankDamage: 70
+  deathReason: HitByTank
   engineAudioSource: {fileID: 4347162039133729108}
   engineIdleClip: {fileID: 8300000, guid: 4932ab25b84dd7649b80af68a9660ddc, type: 3}
   engineDrivingClip: {fileID: 8300000, guid: d7ca9fb5aa30155449192b23d7fb3336, type: 3}

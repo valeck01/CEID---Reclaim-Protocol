@@ -12,11 +12,15 @@ public class MainMenuManager : MonoBehaviour
     public AudioClip backgroundMusic;               // Let inspector assign background music.
 
     [Header("Game Settings")]
-    public string sceneToLoad = "Scene_Level_1";    // Let inspector to assign scene to load at the start.
+    public string sceneToLoad;                      // Let inspector to assign scene to load at the start.
     public GameObject exitPopupPanel;               // Get exit Button game object.
 
     void Start()
     {
+        Time.timeScale = 1f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         // Show background image.
         if (customBackgroundImage != null)
         {

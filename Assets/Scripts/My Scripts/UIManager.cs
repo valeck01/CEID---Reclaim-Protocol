@@ -38,11 +38,18 @@ public class UIManager : MonoBehaviour
     public GameObject lorePagePanel;
     public GameObject exitConfirmationPopup;
 
+    [Header("Victory UI")]
+    public GameObject victoryPopupPanel;
+
     [Header("Tune Page UI")]
     public TextMeshProUGUI availablePointsText;
     public TextMeshProUGUI hpUpgradeLevelText;
     public TextMeshProUGUI damageUpgradeLevelText;
     public TextMeshProUGUI turretSpeedUpgradeLevelText;
+
+    [Header("Base & Tune Page")]
+    public Button tunePageButton;
+    public TextMeshProUGUI tunePageButtonText;
 
     [Header("Lore Page UI")]
     public Button[] loreButtons;                
@@ -56,6 +63,9 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        if (victoryPopupPanel != null) victoryPopupPanel.SetActive(false);
+        if (exitConfirmationPopup != null) exitConfirmationPopup.SetActive(false);
+
         if (player == null) player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -128,6 +138,20 @@ public class UIManager : MonoBehaviour
         tunePagePanel.SetActive(false);
         lorePagePanel.SetActive(false);
         exitConfirmationPopup.SetActive(false);
+
+        if (tunePageButton != null && tunePageButtonText != null)
+        {
+            if (GameManager.Instance.isPlayerInBase)                // Ask GameManager.cs if player is in base.
+            {
+                tunePageButton.interactable = true;
+                tunePageButtonText.text = "Tune Page"; 
+            }
+            else
+            {
+                tunePageButton.interactable = false;
+                tunePageButtonText.text = "Go to Base to Tune!";
+            }
+        }
     }
 
     public void ExitToMainMenuBtn()
@@ -143,6 +167,17 @@ public class UIManager : MonoBehaviour
     public void ConfirmExitNo()
     {
         exitConfirmationPopup.SetActive(false);
+    }
+
+    public void DeathPopup_MainMenu_Btn()
+    {
+        Time.timeScale = 1f;                    // Note: if time is zero then MainMenu will not work.
+        SceneManager.LoadScene("Main_Menu"); 
+    }
+    public void DeathPopup_QuitGame_Btn()
+    {
+        Debug.Log("Κλείσιμο Παιχνιδιού!");
+        Application.Quit();
     }
 
     public void OpenTunePage()
@@ -204,5 +239,14 @@ public class UIManager : MonoBehaviour
     public void CloseLorePopup()
     {
         loreTextPopup.SetActive(false);
+    }
+
+    public void ShowVictoryPopup()
+    {
+        if (inGameUIPanel != null) inGameUIPanel.SetActive(false);
+        if (victoryPopupPanel != null) victoryPopupPanel.SetActive(true);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        Time.timeScale = 0f;
     }
 }

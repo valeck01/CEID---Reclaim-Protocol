@@ -30,23 +30,28 @@ public class AI_Behavior : MonoBehaviour
     public AIState currentState = AIState.Patrol;
     private Vector3 lastKnownPlayerPosition;
 
-    [Header("Tank Vehicle Parameters")]
-    public float speed;                     // Max forward speed (units/sec).
-    public float turnSpeed;                 // Degrees/sec rotation speed.
-    public float detectionRange;            // How far the AI can see the player.
-    public float detectionAngle;            // FOV angle for detection.
-    public float stopAtDistance;            // how close to stop from player.
-    public float rayheightOffset;           // Height offset for raycasting to detect player.
+    [Header("Tank movement Parameters")]
+    public float speed;                             // Max forward speed (units/sec).
+    public float turnSpeed;                         // Degrees/sec rotation speed.
+    [Range(0f, 1f)] public float speedDropOnTurn;   // Drop speed on big turns.
+    [Range(0f, 1f)] public float velocityLerp = 0.1f; // smoothing for velocity changes
+
+    [Header("Tank detection Parameters")]
+    public float detectionRange;                    // How far the AI can see the player.
+    public float detectionAngle;                    // FOV angle for detection.
+    public float stopAtDistance;                    // how close to stop from player.
+    public float rayheightOffset;                   // Height offset for raycasting to detect player.
 
     [Header("Tank Shooting Parameters")]
-    private Transform shellSpawnPoint;      // Where the shell is spawned from.
-    public float shellSpeed;                // Speed of the fired shell (units/sec).
-    public float fireDelayTime;             // Fire delay (seconds between shots).
-    private float nextFireTime;             // Time when the AI can fire next.
-    public float angleToShoot;              // Angle withing player must be to shoot.
-    public float tankDamage;                // Damage for projectiles.
+    private Transform shellSpawnPoint;              // Where the shell is spawned from.
+    public float shellSpeed;                        // Speed of the fired shell (units/sec).
+    public float fireDelayTime;                     // Fire delay (seconds between shots).
+    private float nextFireTime;                     // Time when the AI can fire next.
+    public float angleToShoot;                      // Angle withing player must be to shoot.
+    public float tankDamage;                        // Damage for projectiles.
+    public string deathReason = "HitByTank";        // Let inspector deside player's death reason.
 
-    [Range(0f, 1f)] public float velocityLerp = 0.1f; // smoothing for velocity changes
+    
     
     [Header("Audio Effects")]
     public AudioSource engineAudioSource;
@@ -357,6 +362,12 @@ public class AI_Behavior : MonoBehaviour
         Vector3 directionToCorner = (targetCorner - currentPos).normalized;
         if (directionToCorner != Vector3.zero)
         {
+            float angleToTarget = Vector3.Angle(npc_GameObject.transform.forward, directionToCorner);
+            if (angleToTarget > 5f)                 // If angle is bigger than 5.
+            {
+                speed = speed * speedDropOnTurn;    // Drop forvard movement speed.
+            }
+
             Quaternion targetRotation = Quaternion.LookRotation(directionToCorner);
             npc_rb.MoveRotation(Quaternion.RotateTowards(npc_rb.rotation, targetRotation, TurnSpeed * Time.fixedDeltaTime));
         }
@@ -423,13 +434,17 @@ public class AI_Behavior : MonoBehaviour
                 // Set correct parameters for the shell
                 projectile.transform.position = shellSpawnPoint.position;               // Set shell's position.
                 projectile.transform.rotation = shellSpawnPoint.rotation;               // Set shell's rotation.
-                projectile.SetActive(true);                                             // Activate the shell.
+                projectile.transform.localScale = shellSpawnPoint.lossyScale;           // Set shell's scale.
 
                 if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
                 {
                     shellBehavior.shellDamage = tankDamage;                             // Set the shell's damage.
+                    shellBehavior.damageReason = deathReason;                           // Set reason in case if tank's shell will kill the player.
                     shellBehavior.SetShooter(npc_capsuleCollider);                      // Let shellBehavior to know who is shooting.
                 }
+
+                
+                projectile.SetActive(true);                                             // Activate the shell.
 
                 if (projectile.TryGetComponent<Rigidbody>(out Rigidbody projectileRb))
                 {
@@ -473,6 +488,11 @@ public class AI_Behavior : MonoBehaviour
         Vector3 rayOrigin = npc.position + Vector3.up * rayheightOffset;            // Set the starting point of ray.
         Vector3 targetCenter = player.position + Vector3.up * rayheightOffset;      // Find the player's gameObject center.
         Vector3 rayDirection = (targetCenter - rayOrigin).normalized;               // Set the direction of ray towards player's center.
+
+        // For inspector to see raycast that npc is shooting.
+        Debug.DrawRay(rayOrigin, rayDirection * detectionRange, Color.red);
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit debugHit, detectionRange)) 
+        { Debug.Log("Το NPC κοιτάει το: " + debugHit.collider.name); }
 
         // Shoot rays to find if player is visible.
         if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, detectionRange))

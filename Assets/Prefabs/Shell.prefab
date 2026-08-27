@@ -94,7 +94,7 @@ MonoBehaviour:
   shell_transform: {fileID: 0}
   shell_rigidbody: {fileID: 0}
   shell_capsuleCollider: {fileID: 0}
-  getDamageMultiplier: 1
+  shellDamage: 0
   lifeTime: 10
 --- !u!54 &7124629442225113632
 Rigidbody:
@@ -104,9 +104,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4441194397237284600}
   serializedVersion: 4
-  m_Mass: 20
+  m_Mass: 100
   m_Drag: 1
-  m_AngularDrag: 0
+  m_AngularDrag: 1
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}

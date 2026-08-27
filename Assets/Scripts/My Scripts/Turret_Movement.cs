@@ -59,13 +59,15 @@ public class Turret_Movement : MonoBehaviour
                 // Set correct parameters for the shell
                 projectile.transform.position = shellSpawnPoint.position;               // Set shell's position.
                 projectile.transform.rotation = shellSpawnPoint.rotation;               // Set shell's rotation.
-                projectile.SetActive(true);                                             // Activate the shell.
+                projectile.transform.localScale = shellSpawnPoint.lossyScale;           // Set shell's scale.
 
                 if (projectile.TryGetComponent<Shell_Behavior>(out Shell_Behavior shellBehavior))
                 {
                     shellBehavior.shellDamage = tankDamage;                             // Set the shell's Damage.
                     shellBehavior.SetShooter(tank_capsuleCollider);
                 }
+                
+                projectile.SetActive(true);                                             // Activate the shell.
 
                 if (projectile.TryGetComponent<Rigidbody>(out Rigidbody projectileRb))
                 {

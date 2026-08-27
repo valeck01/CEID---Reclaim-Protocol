@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class Health_System : MonoBehaviour
 {
@@ -16,10 +17,23 @@ public class Health_System : MonoBehaviour
     public GameObject bustedTankPrefab;
     public float bustedTankDestroyTime = 300f;
 
+    [Header("Player's Death UI")]
+    public GameObject inGameUIPanel;
+    public GameObject deathPopupPanel;
+    public TextMeshProUGUI deathPopupText;
 
-    
+    [Header("Death Messages")]
+    public string defaultDeathMsg = "You Died At Mission! (Game Over)";
+    public string timeOutDeathMsg = "You got destroyed by Nuclear Weapon! (Game Over) (Animation of a Nuclear weapon is in progress)";
+
+    public string KilledByTankMsg = "Enemie Tank Killed you! (Game Over)";
+    public string KilledByTurretMsg = "Enemie Turret Killed you! (Game Over)";
+    public string KilledInBossSectorMsg = "Killed in Boss Sector. Next time prepare better! (Game Over)";
+
     void Start()
     {
+        if (deathPopupPanel != null) deathPopupPanel.SetActive(false);
+
         // Initialize explosion sound prefab.
         if (explosionPrefab == null)
         {
@@ -48,35 +62,62 @@ public class Health_System : MonoBehaviour
         isDead = false;    
     }
 
-    public void TakeDamage(float incommingDamage)
+    public void TakeDamage(float incommingDamage,  string deathReason = "Default")
     {
         if (isDead) return; // Already dead, no further damage.
 
         currentHealth -= incommingDamage;                           // Reduce current health.
         Debug.Log($"{gameObject.name} got {incommingDamage} damage! Current HP: {currentHealth}");
-        // Here comes Ui for health bar update in future.---------------------------------------------------------------------------------------------------------
 
-        if (currentHealth <= 0f && !isDead)
+        if (currentHealth <= 0f)
         {
             currentHealth = 0f; // Clamp health to zero.
             isDead = true;
-            HandleDeath();
-            Debug.Log($"{gameObject.name} is destroyed!");
+            HandleDeath(deathReason);
+            Debug.Log($"{gameObject.name} is destroyed! with reason: {deathReason}");
 
-            // Here comes explosion effect instantiation in future.------------------------------------------------------------------------------------------------
         }
     }
 
-    void HandleDeath()
+    void HandleDeath(string reason)
     {
         
         if(gameObject.CompareTag("Player"))
         {                        
-            Debug.Log("You died at war! Game Over.");
+            Debug.Log("Player's tank destroyed.");
+
+            // Enable and setup death popup UI.
+            if (inGameUIPanel != null) inGameUIPanel.SetActive(false);
+            if (deathPopupPanel != null) deathPopupPanel.SetActive(true);
+            if (deathPopupText != null)
+            {
+                switch (reason)
+                {
+                    case "TimeOutInSector3":
+                        deathPopupText.text = timeOutDeathMsg;
+                        break;
+                    case "HitByTurret":
+                        deathPopupText.text = KilledByTurretMsg;
+                        break;
+                    case "HitByTank":
+                        deathPopupText.text = KilledByTankMsg;
+                        break;
+                    case "HitByBossEnemie":
+                        deathPopupText.text = KilledInBossSectorMsg;
+                        break;
+                    default:
+                        deathPopupText.text = defaultDeathMsg;
+                        break;
+                }
+            }
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            // Πάγωμα Χρόνου
+            Time.timeScale = 0f;
         }
         else if(gameObject.CompareTag("Enemy_Player"))
         {                        
-            Debug.Log("Enemy Tank destroyed!");
+            Debug.Log("Enemy's Tank/Turret destroyed!");
 
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null && player.TryGetComponent<PlayerInventory>(out PlayerInventory pInv))
@@ -108,8 +149,9 @@ public class Health_System : MonoBehaviour
 
         if (bustedTankPrefab != null)
         {
-            GameObject bustedTank = Instantiate(bustedTankPrefab, transform.position, transform.rotation);
-            Destroy(bustedTank, bustedTankDestroyTime);
+            GameObject bustedTank = Instantiate(bustedTankPrefab, transform.position, transform.rotation);  // Initialize busted tank prefab
+            bustedTank.transform.localScale = transform.lossyScale;                                         // Set the tank's scale
+            Destroy(bustedTank, bustedTankDestroyTime);                                                     // Destroy Busted tank prefab after time that inspector assigned.
         }
                 
         gameObject.SetActive(false); // Deactivate the object.

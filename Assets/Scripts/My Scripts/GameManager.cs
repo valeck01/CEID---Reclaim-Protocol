@@ -4,6 +4,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;         // Make this script Singleton. Any other script can have easy access on that script.
 
+    [Header("Player's Location")]
+    public bool isPlayerInBase = true;
+
     [Header("Boss Gates Logic")]
     public int totalBossKeysInMap = 3;          // Let Inspectr assign the # of boss keys in the map.
     public bool bossGatesCanOpen = false;       // Boolean to know if all key's are collected.

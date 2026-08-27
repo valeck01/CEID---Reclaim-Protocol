@@ -215,8 +215,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 2
-  MaxDistance: 40
+  MinDistance: 0.1
+  MaxDistance: 10
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -281,7 +281,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -303,9 +303,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f681cbe6dd3a7a419a573d91f1fc55b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Max_Tank_Speed: 15
-  Max_Turn_Speed: 45
+  Max_Tank_Speed: 3
+  Max_Turn_Speed: 35
   speed_Smoothness: 0.1
+  isEngineOn: 1
   audioSource: {fileID: 8202962158958351529}
   engineIdleClip: {fileID: 8300000, guid: 4932ab25b84dd7649b80af68a9660ddc, type: 3}
   engineDrivingClip: {fileID: 8300000, guid: d7ca9fb5aa30155449192b23d7fb3336, type: 3}
@@ -322,6 +323,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1079bff8fd8e53544b25d126f431a878, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  repairItemsCount: 0
+  speedItemsCount: 0
+  reloadItemsCount: 0
+  bossKeysCount: 0
   repairAmount: 30
   speedBuffAmount: 20
   speedBuffDuration: 5
@@ -334,6 +339,9 @@ MonoBehaviour:
   availableUpgradePoints: 0
   maxLevel: 10
   maxUpgradesPerStat: 5
+  hpUpgradesCount: 0
+  damageUpgradesCount: 0
+  turretSpeedUpgradesCount: 0
   hpBonusPerUpgrade: 30
   damageBonusPerUpgrade: 15
   turretSpeedBonusPerUpgrade: 5
@@ -603,14 +611,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shellSpawnPoint: {fileID: 7356507845329477845}
-  shellSpeed: 100
+  shellSpeed: 30
   fireDelayTime: 2
   nextFireTime: 0
-  tankDamage: 0
+  tankDamage: 50
   shootAudioSource: {fileID: 6208156605552016201}
   shotFiringClip: {fileID: 8300000, guid: 672a9941361ad494a99fba36759eca80, type: 3}
   shotReloadClip: {fileID: 8300000, guid: c17f124fcdc0f5446a72f793898bd74b, type: 3}
-  rotate_speed: 50
+  rotate_speed: 35
 --- !u!82 &6208156605552016201
 AudioSource:
   m_ObjectHideFlags: 0
@@ -900,10 +908,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8550445240117433163}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.01745245, y: -0, z: -0, w: 0.99984777}
+  m_LocalRotation: {x: -0.021814799, y: 0, z: 0, w: 0.999762}
   m_LocalPosition: {x: -0.000010554959, y: 0.48535883, z: 0.92532283}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7330382992112193477}
-  m_LocalEulerAnglesHint: {x: -2, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -2.5, y: 0, z: 0}

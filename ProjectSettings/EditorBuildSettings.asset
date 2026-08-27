@@ -11,7 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Main_Menu.unity
     guid: 56eef0a94dfe4ac4d9252e618aa6725d
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Scene_Level_1.unity
     guid: 8fad260dfde19624dabd2c63906acb00
+  - enabled: 1
+    path: Assets/Scenes/Iliana's Scenes/World.unity
+    guid: dd93c5df472dbcc4aa6fc9046498fdd8
   m_configObjects: {}
