@@ -99,7 +99,7 @@ public class UIManager : MonoBehaviour
 
         // Top Left stats.
         if (hpText != null) hpText.text = $"HP: {playerHealth.currentHealth} / {playerHealth.Max_Health}";
-        if (speedText != null) speedText.text = $"Speed: {playerRb.velocity.magnitude:F1}"; // To :F1 δείχνει 1 δεκαδικό πχ 5.2
+        if (speedText != null) speedText.text = $"Speed: {playerRb.velocity.magnitude:F1}"; // F1 stands for "only first float digit".
         if (damageText != null) damageText.text = $"Damage: {playerTurret.tankDamage}";
         if (turretSpeedText != null) turretSpeedText.text = $"Turret Speed: {playerTurret.rotate_speed}";
 
@@ -109,9 +109,9 @@ public class UIManager : MonoBehaviour
         if (maxXpText != null) maxXpText.text = $"Next Level at: {playerInventory.nextLevelXP} XP";
 
         // Bottom center (pickables).
-        if (repairCountText != null) repairCountText.text = playerInventory.repairItemsCount.ToString();
-        if (speedBuffCountText != null) speedBuffCountText.text = playerInventory.speedItemsCount.ToString();
-        if (reloadBuffCountText != null) reloadBuffCountText.text = playerInventory.reloadItemsCount.ToString();
+        if (repairCountText != null) repairCountText.text = $"{playerInventory.repairItemsCount} / {playerInventory.maxAmmountPerItem}";
+        if (speedBuffCountText != null) speedBuffCountText.text = $"{playerInventory.speedItemsCount} / {playerInventory.maxAmmountPerItem}";
+        if (reloadBuffCountText != null) reloadBuffCountText.text = $"{playerInventory.reloadItemsCount} / {playerInventory.maxAmmountPerItem}";
         if (bossKeysCountText != null) bossKeysCountText.text = $"{playerInventory.bossKeysCount} / {GameManager.Instance.totalBossKeysInMap}";
     }
 
@@ -176,7 +176,7 @@ public class UIManager : MonoBehaviour
     }
     public void DeathPopup_QuitGame_Btn()
     {
-        Debug.Log("Κλείσιμο Παιχνιδιού!");
+        Debug.Log("Close the game!");
         Application.Quit();
     }
 

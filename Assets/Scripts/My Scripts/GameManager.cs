@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        Application.targetFrameRate = 165;      // Set the target frame rate to 165.
+        Application.targetFrameRate = -1;       // Uncapped frame rate.
         QualitySettings.vSyncCount = 0;         // Disable vertical sync.
 
         // Initialize Singleton.
@@ -43,7 +43,6 @@ public class GameManager : MonoBehaviour
 
     public void UnlockLorePiece(int loreID)
     {
-        // Ελέγχουμε αν βάλαμε σωστό ID για να μην κρασάρει το παιχνίδι
         if (loreID >= 0 && loreID < unlockedLore.Length)
         {
             unlockedLore[loreID] = true;

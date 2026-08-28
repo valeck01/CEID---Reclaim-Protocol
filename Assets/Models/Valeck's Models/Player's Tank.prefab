@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 8202962158958351529}
   - component: {fileID: 6544847717945580158}
   - component: {fileID: 1033935352322049772}
+  - component: {fileID: 3740079775132750772}
   m_Layer: 0
   m_Name: Player's Tank
   m_TagString: Player
@@ -186,14 +187,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eab8632d578247741a6c564f03abcbf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Max_Health: 300
-  Starting_Health: 150
+  Max_Health: 200
+  Starting_Health: 100
   currentHealth: 150
   xpReward: 30
   explosionPrefab: {fileID: 151086, guid: ee49a9a8678ecf8468eb488e1ac8d42b, type: 3}
   bustedTankPrefab: {fileID: 8645589114086521471, guid: 0f4613a0ece11d64aa0a37faf1f23c15,
     type: 3}
   bustedTankDestroyTime: 300
+  inGameUIPanel: {fileID: 0}
+  deathPopupPanel: {fileID: 0}
+  deathPopupText: {fileID: 0}
+  defaultDeathMsg: You Died At Mission! (Game Over)
+  timeOutDeathMsg: You got destroyed by Nuclear Weapon! (Game Over) (Animation of
+    a Nuclear weapon is in progress)
+  KilledByTankMsg: Enemie Tank Killed you! (Game Over)
+  KilledByTurretMsg: Enemie Turret Killed you! (Game Over)
+  KilledInBossSectorMsg: Killed in Boss Sector. Next time prepare better! (Game Over)
 --- !u!82 &8202962158958351529
 AudioSource:
   m_ObjectHideFlags: 0
@@ -304,7 +314,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Max_Tank_Speed: 3
-  Max_Turn_Speed: 35
+  Max_Turn_Speed: 50
   speed_Smoothness: 0.1
   isEngineOn: 1
   audioSource: {fileID: 8202962158958351529}
@@ -327,15 +337,16 @@ MonoBehaviour:
   speedItemsCount: 0
   reloadItemsCount: 0
   bossKeysCount: 0
-  repairAmount: 30
-  speedBuffAmount: 20
-  speedBuffDuration: 5
-  reloadBuffAmount: 1
-  reloadBuffDuration: 5
+  maxAmmountPerItem: 5
+  repairAmount: 40
+  speedBuffAmount: 3
+  speedBuffDuration: 10
+  reloadBuffAmount: 1.5
+  reloadBuffDuration: 10
   currentLevel: 0
   currentXP: 0
   nextLevelXP: 100
-  xpIncreasePerLevel: 50
+  xpIncreasePerLevel: 20
   availableUpgradePoints: 0
   maxLevel: 10
   maxUpgradesPerStat: 5
@@ -346,7 +357,23 @@ MonoBehaviour:
   damageBonusPerUpgrade: 15
   turretSpeedBonusPerUpgrade: 5
   pickupAudioSource: {fileID: 8202962158958351529}
-  pickupAndActivationClip: {fileID: 0}
+  pickupAndActivationClip: {fileID: 8300000, guid: fa56aaf432695d642bbe1cc44339e821,
+    type: 3}
+--- !u!114 &3740079775132750772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967578518181579227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ef3e1b961738b546b71478673f624fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  headLights:
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1183445729009927059
 GameObject:
   m_ObjectHideFlags: 0
@@ -614,11 +641,11 @@ MonoBehaviour:
   shellSpeed: 30
   fireDelayTime: 2
   nextFireTime: 0
-  tankDamage: 50
+  tankDamage: 30
   shootAudioSource: {fileID: 6208156605552016201}
   shotFiringClip: {fileID: 8300000, guid: 672a9941361ad494a99fba36759eca80, type: 3}
   shotReloadClip: {fileID: 8300000, guid: c17f124fcdc0f5446a72f793898bd74b, type: 3}
-  rotate_speed: 35
+  rotate_speed: 30
 --- !u!82 &6208156605552016201
 AudioSource:
   m_ObjectHideFlags: 0

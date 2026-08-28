@@ -220,9 +220,19 @@ MonoBehaviour:
   Max_Health: 300
   Starting_Health: 150
   currentHealth: 150
-  isDead: 0
-  damageAmmount: 10
+  xpReward: 30
   explosionPrefab: {fileID: 0}
+  bustedTankPrefab: {fileID: 0}
+  bustedTankDestroyTime: 300
+  inGameUIPanel: {fileID: 0}
+  deathPopupPanel: {fileID: 0}
+  deathPopupText: {fileID: 0}
+  defaultDeathMsg: You Died At Mission! (Game Over)
+  timeOutDeathMsg: You got destroyed by Nuclear Weapon! (Game Over) (Animation of
+    a Nuclear weapon is in progress)
+  KilledByTankMsg: Enemie Tank Killed you! (Game Over)
+  KilledByTurretMsg: Enemie Turret Killed you! (Game Over)
+  KilledInBossSectorMsg: Killed in Boss Sector. Next time prepare better! (Game Over)
 --- !u!82 &4118991204696636617
 AudioSource:
   m_ObjectHideFlags: 0
@@ -335,8 +345,11 @@ MonoBehaviour:
   Max_Tank_Speed: 5
   Max_Turn_Speed: 5
   speed_Smoothness: 0.5
+  isEngineOn: 1
   audioSource: {fileID: 0}
-  engineSound: {fileID: 0}
+  engineIdleClip: {fileID: 0}
+  engineDrivingClip: {fileID: 0}
+  pitchRange: 0.2
 --- !u!114 &4975930164751980373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -622,13 +635,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shellSpawnPoint: {fileID: 0}
-  shellSize: 0
   shellSpeed: 0
   fireDelayTime: 0
   nextFireTime: 0
-  damageMultiplier: 0
-  shootFiringAudioSource: {fileID: 0}
-  shootReloadAudioSource: {fileID: 0}
+  tankDamage: 0
+  shootAudioSource: {fileID: 0}
+  shotFiringClip: {fileID: 0}
+  shotReloadClip: {fileID: 0}
   rotate_speed: 50
 --- !u!82 &922340915245893483
 AudioSource:

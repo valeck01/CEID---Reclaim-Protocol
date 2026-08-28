@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: 1st lab project
+  companyName: Valeck01
+  productName: CEID (Reclaim-Protocol)
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -295,7 +295,7 @@ PlayerSettings:
   - m_BuildTarget: 
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 0}
+      m_Icon: {fileID: 2800000, guid: 15401c322359c12408e0a7f0f07cef0d, type: 3}
       m_Width: 128
       m_Height: 128
       m_Kind: 0
@@ -924,11 +924,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 48f09a7c-5e60-4326-aa66-a4477687b65d
+  cloudProjectId: 
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 1st lab project
-  organizationId: pascarivalentin08
+  projectName: 
+  organizationId: 
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 1
   hmiLoadingImage: {fileID: 0}

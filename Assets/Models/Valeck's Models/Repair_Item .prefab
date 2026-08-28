@@ -45,7 +45,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0.2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -189,11 +189,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myItemType: 0
-  respawnTime: 5
+  respawnTime: 120
   loreID: 0
-  rotationSpeed: 10
-  floatSpeed: 2
-  floatHeight: 0.5
+  rotationSpeed: 20
+  floatSpeed: 1
+  floatHeight: 0.2
 --- !u!1 &7455550885169290814
 GameObject:
   m_ObjectHideFlags: 0

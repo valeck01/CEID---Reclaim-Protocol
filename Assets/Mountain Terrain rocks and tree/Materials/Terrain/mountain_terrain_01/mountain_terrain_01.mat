@@ -9,12 +9,13 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: mountain_terrain_01
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: 2100000, guid: 9552658b68ab9c64e807a0a9fb398140, type: 2}
+  m_Parent: {fileID: 2100000, guid: 5f89f03e5c1a29a4b95d9e2ada8f4187, type: 2}
   m_ModifiedSerializedProperties: 2
   m_ValidKeywords:
   - _METALLICSPECGLOSSMAP
   - _NORMALMAP
   - _OCCLUSIONMAP
+  - _SPECULAR_SETUP
   m_InvalidKeywords:
   - _METALLICGLOSSMAP
   m_LightmapFlags: 4

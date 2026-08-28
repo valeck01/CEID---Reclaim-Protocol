@@ -492,7 +492,7 @@ public class AI_Behavior : MonoBehaviour
         // For inspector to see raycast that npc is shooting.
         Debug.DrawRay(rayOrigin, rayDirection * detectionRange, Color.red);
         if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit debugHit, detectionRange)) 
-        { Debug.Log("Το NPC κοιτάει το: " + debugHit.collider.name); }
+        { Debug.Log("Npc looks at: " + debugHit.collider.name); }
 
         // Shoot rays to find if player is visible.
         if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, detectionRange))

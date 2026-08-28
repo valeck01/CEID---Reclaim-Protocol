@@ -1,12 +1,15 @@
 using UnityEngine;
+using System.Collections;
 using TMPro;
 
 public class SectorEnemiesTrigger : MonoBehaviour
 {
     [Header("Sector Enemies Settings")]
     public Transform enemiesParent;             // GameObject Father of npc_turret GameObjects.
+    public float respawnDelay = 15f;
+
     [Header("Death Timer Settings")]
-    public float timeLimit = 300f;              // Τα δευτερόλεπτα που έχει ο παίκτης.
+    public float timeLimit = 300f;              // Time till player's death from a nuclear weapon.
     public TextMeshProUGUI timerText;           // Timer's Text for inGame UI
 
     // Private variables
@@ -46,9 +49,8 @@ public class SectorEnemiesTrigger : MonoBehaviour
             for (int i = 0; i < childCount; i++)
             {
                 enemyTransforms[i] = enemiesParent.GetChild(i);
-                enemyInitialRotations[i] = enemyTransforms[i].rotation; // Αποθήκευση της αρχικής κατεύθυνσης.
+                enemyInitialRotations[i] = enemyTransforms[i].rotation;
                 
-                // Κρύβουμε τα turrets στην αρχή!
                 enemyTransforms[i].gameObject.SetActive(false);
             }
         }
@@ -77,12 +79,11 @@ public class SectorEnemiesTrigger : MonoBehaviour
                 isTimerActive = false;
                 if (timerText != null) timerText.text = "0";
 
-                // Σκοτώνουμε τον παίκτη!
+                // Kill player (with nuclear weapon).
                 if (playerHealth != null)
                 {
                     Debug.Log("Time out in Sector-3! Player's Tank got 999 Damage!");
                     playerHealth.TakeDamage(999f, "TimeOutInSector3");
-                    // playerHealth.TakeDamage(999f, "reason");
                 }
             }
         }

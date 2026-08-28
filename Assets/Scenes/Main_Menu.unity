@@ -1823,7 +1823,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: fa0c91e2b08dde942aba32c9bc284b2e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2264,7 +2264,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 591, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1754091031
@@ -2565,9 +2565,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backgroundImage: {fileID: 1525484379}
-  customBackgroundImage: {fileID: 0}
+  customBackgroundImage: {fileID: 21300000, guid: fa0c91e2b08dde942aba32c9bc284b2e,
+    type: 3}
   audioSource: {fileID: 448175549}
-  backgroundMusic: {fileID: 0}
+  backgroundMusic: {fileID: 8300000, guid: 190374dd4153f0949a3e633cc909b95b, type: 3}
   sceneToLoad: World
   exitPopupPanel: {fileID: 41938091}
 --- !u!4 &1791867529

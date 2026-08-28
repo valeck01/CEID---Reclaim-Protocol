@@ -112,7 +112,7 @@ public class Health_System : MonoBehaviour
             }
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-            // Πάγωμα Χρόνου
+            // Pause the game.
             Time.timeScale = 0f;
         }
         else if(gameObject.CompareTag("Enemy_Player"))

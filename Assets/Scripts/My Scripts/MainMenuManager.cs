@@ -46,9 +46,9 @@ public class MainMenuManager : MonoBehaviour
             audioSource.Stop();
         }
 
-        // If game runns as build.exe force it to be on windowed mode.
+        // If game runns as build.exe force it to be on fullscreen mode.
         #if !UNITY_EDITOR
-        Screen.fullScreenMode = FullScreenMode.Windowed;
+        Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
         #endif
 
         // Exit popup panel should be inactive at the start.

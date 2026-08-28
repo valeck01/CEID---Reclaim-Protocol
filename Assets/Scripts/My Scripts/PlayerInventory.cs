@@ -9,6 +9,7 @@ public class PlayerInventory : MonoBehaviour
     public int speedItemsCount = 0;
     public int reloadItemsCount = 0;
     public int bossKeysCount = 0;
+    public int maxAmmountPerItem = 5;
 
     [Header("Buffs Amount")]
     public float repairAmount = 30f;            // Let inspector deside (Repair bonus amount).
@@ -199,21 +200,21 @@ public class PlayerInventory : MonoBehaviour
         switch (itemType)
         {
             case "RepairType":
-                if(repairItemsCount < 3) repairItemsCount++;
+                if(repairItemsCount < maxAmmountPerItem) repairItemsCount++;
                 break;
 
             case "MovementSpeedType":
-                if(speedItemsCount < 3) speedItemsCount++;
+                if(speedItemsCount < maxAmmountPerItem) speedItemsCount++;
                 break;
 
             case "ReloadBuffType":
-                if(reloadItemsCount < 3) reloadItemsCount++;
+                if(reloadItemsCount < maxAmmountPerItem) reloadItemsCount++;
                 break;
 
             case "LoreItemType":
                 if (GameManager.Instance != null)
                 {
-                    GameManager.Instance.UnlockLorePiece(loreID); // Στέλνει το ID στον GameManager
+                    GameManager.Instance.UnlockLorePiece(loreID); // Send Lore Id to gameManager.cs
                 }
                 break;
             
@@ -241,9 +242,8 @@ public class PlayerInventory : MonoBehaviour
     {
         if (currentLevel >= maxLevel) return;                                   // Ignore if max level reached.
         currentXP += amount;                                                    // Increase XP ammount.
-        Debug.Log($"Πήρες {amount} XP. Σύνολο: {currentXP} / {nextLevelXP}");
-        
-        // Χρησιμοποιούμε while σε περίπτωση που πήρε πάρα πολλά XP μαζεμένα
+        Debug.Log($"player got {amount} XP. Total: {currentXP} / {nextLevelXP}");
+ 
         while (currentXP >= nextLevelXP && currentLevel < maxLevel)             // In case player got too many XP's
         {
             LevelUp();                                                          // Apply level up on player.

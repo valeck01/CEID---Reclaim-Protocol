@@ -6,27 +6,51 @@ public class Sun_Behavior : MonoBehaviour
 {
     [Header("Components")]
     public Transform sun_transform;
+    private Light sun_light;
     
     [Header("Sun Parameters")]
-    public float rotationSpeed =2f; // degrees per second.
+    public float dayCycleInMinutes = 10f; // Let inspector assign how much minutes should pass till sun makes a full rotate.
+    public float sunLightIntesityAtNight = 0f;
 
-    // Start is called before the first frame update
+    private float rotationSpeed;
+    private float defaultIntensity;
+
     void Start()
     {
         sun_transform = transform;
+        sun_light = GetComponent<Light>();
         
-        // Initialize Sun Parameters.
-        sun_transform.position = new Vector3(0f, 0f, -100f); // Start position of the sun.
+        if (sun_light != null)
+        {
+            defaultIntensity = sun_light.intensity;
+        }
+        
+        // Calculate needed speed: 360 angles / (minutes * 60 seconds)
+        rotationSpeed = 360f / (dayCycleInMinutes * 60f);
 
+        // Innitial sun's possition.
+        sun_transform.position = new Vector3(0f, 0f, -100f); 
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Rotate the sun around the center of the scene (x-axis,0,0).
+        // sun's rottation arround the scene.
         sun_transform.RotateAround(Vector3.zero, Vector3.right, rotationSpeed * Time.deltaTime);
 
-        // Keep the sun always facing the center of the scene.
+        // Make sun to always look at the center of the map.
         sun_transform.LookAt(Vector3.zero);
+
+        if (sun_light != null)
+        {
+            // if sun is under the scene. null it's light intensity.
+            if (sun_transform.position.y < 0f)
+            {
+                sun_light.intensity = sunLightIntesityAtNight;
+            }
+            else
+            {
+                sun_light.intensity = defaultIntensity;
+            }
+        }
     }
 }

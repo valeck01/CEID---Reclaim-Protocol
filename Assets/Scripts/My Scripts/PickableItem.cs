@@ -100,7 +100,7 @@ public class PickableItem : MonoBehaviour
                 // If item's type is unique then just destroy them.
                 if (myItemType == ItemType.LoreItemType || myItemType == ItemType.BossKeyItemType)
                 {
-                    // Τα Ειδικά αντικείμενα εξαφανίζονται οριστικά από το χάρτη
+                    // we dont need Lore and key items anymore.
                     Destroy(gameObject); 
                 }
                 else // If item type is buff type then just hide them from the game with delay.
